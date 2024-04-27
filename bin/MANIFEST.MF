@@ -1,4 +1,4 @@
-MIDlet-1: HelloWorld, HelloWorld.png, socket.HelloWorldMidlet
+MIDlet-1: HelloWorld, icon.png, socket.HelloWorldMidlet
 MIDlet-Name: HelloWorld
 MIDlet-Permissions: javax.microedition.io.Connector.comm,javax.microed
  ition.io.Connector.socket,javax.microedition.io.PushRegistry

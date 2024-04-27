@@ -5,12 +5,12 @@ import javax.microedition.lcdui.*;
 import java.io.*;
 
 
-public class Client implements Runnable {
+public class Client implements Runnable{
     private HelloWorldMidlet parent;
+	
     private Display disp;
 	public static DrawScreen splash_screen;
 	private String receivedString;
-	private String statusString;
 	private String outMessageString;
     private boolean stop;
     InputStream is;
@@ -22,8 +22,7 @@ public class Client implements Runnable {
         parent = m;
 		splash_screen = new DrawScreen();
         disp = Display.getDisplay(parent);
-        statusString = "Status: ";
-        disp.setCurrent(splash_screen);
+        disp.setCurrent(splash_screen);	
     }
 
     //Start the client thread
@@ -35,8 +34,7 @@ public class Client implements Runnable {
     public void run() {
         try {
             sc = (SocketConnection) Connector.open("socket://localhost:27030");
-            statusString = "Status: Connected to server";
-			splash_screen.setMessage("Status: Connected to server");
+			splash_screen.setStatus("Онлайн");
             is = sc.openInputStream();
             os = sc.openOutputStream();
 
@@ -56,14 +54,12 @@ public class Client implements Runnable {
                     break;
                 }
 
-                statusString = "Status: Message received - " + sb.toString();
-				splash_screen.setMessage("Status: Message received - " + sb.toString());
+				splash_screen.printMessage(sb.toString());
             }
             stop();
-            statusString = "Status: Connection closed";
-			splash_screen.setMessage("Status: Connection closed");
+			splash_screen.setStatus("Соединение закрыто");
         } catch (ConnectionNotFoundException cnfe) {
-			splash_screen.setMessage("Server not found");          
+			splash_screen.setStatus("Сервер недоступен");          
         } catch (IOException ioe) {
             if (!stop) {
                 ioe.printStackTrace();
@@ -78,6 +74,8 @@ public class Client implements Runnable {
             sender.send(outMessageString);
         }
     }
+	
+
 
     //Close all open streams
     public void stop() {
