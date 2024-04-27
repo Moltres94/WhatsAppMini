@@ -1,0 +1,9 @@
+MIDlet-1: HelloWorld, HelloWorld.png, socket.HelloWorldMidlet
+MIDlet-Jar-Size: 8256
+MIDlet-Jar-URL: HelloWorld.jar
+MIDlet-Name: HelloWorld
+MIDlet-Permissions: javax.microedition.io.Connector.comm,javax.microedition.io.Connector.socket,javax.microedition.io.PushRegistry
+MIDlet-Vendor: Unknown
+MIDlet-Version: 1.0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
