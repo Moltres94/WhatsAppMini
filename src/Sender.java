@@ -7,7 +7,8 @@ import java.io.*;
 
 public class Sender extends Thread {
 
-    private OutputStream os;
+    private final static byte[] RN = "\r\n".getBytes();
+    private final OutputStream os;
     private String message;
 
     public Sender(OutputStream os) {
@@ -20,38 +21,55 @@ public class Sender extends Thread {
         notify();
     }
 
-    public synchronized void run() {
-
+    public void run() {
         while (true) {
-
             // If no client to deal, wait until one connects
             if (message == null) {
                 try {
                     wait();
-                } catch (InterruptedException e) {
+                } catch (InterruptedException exception) {
+                    System.err.println("thread was unexpectedly interrupted");
+                    close();
+                    break;
                 }
             }
-
             if (message == null) {
                 break;
             }
-
             try {
                 os.write(message.getBytes());
-                os.write("\r\n".getBytes());
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+                os.write(RN);
+            } catch (IOException exception) {
+                System.err.println("couldn't send the message");
+                exception.printStackTrace();
             }
-
             // Completed client handling, return handler to pool and
             // mark for wait
             message = null;
         }
     }
 
-    public synchronized void stop() {
+    /**
+     * stop is a final method of Thread class
+     * so we should use another name, like destroy
+     */
+    public void destroy() {
         message = null;
         notify();
+        close();
     }
+
+    private void close() {
+        if (this.os != null) {
+            System.err.println("closing resources");
+            try {
+                this.os.close();
+            } catch (IOException exception) {
+                System.err.println("couldn't close OutputStream");
+                exception.printStackTrace();
+            }
+        }
+    }
+
 }
 
