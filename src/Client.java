@@ -67,9 +67,15 @@ public class Client implements Runnable {
 
     //note: do we need this function?
     //outMessageString seems undefined
+<<<<<<< Updated upstream
     public void sendMessage() {
         if (!lifecycle.isPaused()) {
             sender.send(outMessageString);
+=======
+    public void sendMessage(String msg) {
+        if (!lifecycle.isPaused()) {
+            sender.send(msg);
+>>>>>>> Stashed changes
         }
     }
 

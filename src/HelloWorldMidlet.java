@@ -14,7 +14,11 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	protected void startApp() {
 		isPaused = false;
 		client = new Client(this, this);
+<<<<<<< Updated upstream
 		splashScreen = new DrawScreen(this);
+=======
+		splashScreen = new DrawScreen(this,client);
+>>>>>>> Stashed changes
 		disp = Display.getDisplay(this);
 		disp.setCurrent(splashScreen);
 		client.start();
