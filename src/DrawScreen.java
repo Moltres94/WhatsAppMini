@@ -9,9 +9,26 @@ public class DrawScreen extends Canvas implements CommandListener{
 	private Command CMND_Send = new Command("Send",Command.ITEM, 1);
 	private Command CMND_Exit = new Command("Выход",Command.EXIT, 1);
 	
-	private String[] messages=new String[100];
+	private final String[] messages=new String[100];
 	private int messagesCount=0;
-	
+	private final MidletLifecycle lifecycle;
+
+	public DrawScreen(MidletLifecycle lifecycle) {
+		this.lifecycle = lifecycle;
+		setFullScreenMode(true);
+		w = getWidth();
+		h = getHeight();
+		try {
+			splash = Image.createImage("/logo80.png");
+			addCommand(CMND_Exit);
+			addCommand(CMND_Send);
+			setCommandListener(this);
+		} catch(Exception e) {
+			System.err.println("something went wrong on DrawScreen.init()");
+			e.printStackTrace();
+		}
+	}
+
 	private  void clearScreen(Graphics g){
         int color=g.getColor();
         g.setColor(255, 255, 255);
@@ -30,53 +47,38 @@ public class DrawScreen extends Canvas implements CommandListener{
 		g.drawString("Выход", 15,h,Graphics.LEFT|Graphics.BOTTOM);
         g.setColor(color);
     }
-	
-    public DrawScreen() {
-		setFullScreenMode(true);
-        w = getWidth();
-        h = getHeight();
-        try {
-            splash = Image.createImage("/logo80.png");
-        } catch (Exception e) {}
-		try {
-            addCommand(CMND_Exit);
-			addCommand(CMND_Send);
-            setCommandListener(this);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-	
-	private void addMessage(String mes){
-		messages[messagesCount]=mes;
-		messagesCount++;
+
+	/**
+	 * Here we could go out of screen height
+	 * @param message
+	 */
+	private void addMessage(String message) {
+		messages[messagesCount++]=message;
 		repaint();
 	}
 	
 	public void commandAction(Command command, Displayable displayable) {
         if (command==CMND_Exit){
-            HelloWorldMidlet.getMidlet().quit();
+			lifecycle.quit();
         }
 		if (command==CMND_Send){
             addMessage("Send!");
         }
     }
-	public void printMessage(String mes)
-	{
+	public void printMessage(String mes) {
 		addMessage(mes);
 	}
-	public void setStatus(String mes)
-	{
+
+	public void setStatus(String mes) {
 		status=mes;
 		repaint();
 	}
+
     protected void paint(Graphics g) {
 		clearScreen(g);
-
 		for (int i=0;i<messagesCount;i++)
 			g.drawString(messages[i], 15,55+i*14,Graphics.LEFT|Graphics.BOTTOM);
         g.drawImage(splash, w/2, h/2, 3);
-		
 		drawHead(g);
     }
 

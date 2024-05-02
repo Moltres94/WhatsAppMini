@@ -4,36 +4,45 @@ import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 import java.io.*;
 
-public class HelloWorldMidlet extends MIDlet {
+public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClientListener {
 	
     public Display disp;
 	private boolean isPaused;
 	private Client client;
-	private static HelloWorldMidlet midlet;
-	
-	public HelloWorldMidlet(){
-		midlet=this;
-	}
+	private DrawScreen splashScreen;
+
 	protected void startApp() {
 		isPaused = false;
-		client = new Client(this);
-                client.start();
+		client = new Client(this, this);
+		splashScreen = new DrawScreen(this);
+		disp = Display.getDisplay(this);
+		disp.setCurrent(splashScreen);
+		client.start();
 	}
+
 	public boolean isPaused() {
         return isPaused;
     }
 
-    public void pauseApp() {
+
+	public void pauseApp() {
         isPaused = true;
     }
+
+	public void quit(){
+		destroyApp(true);
+		notifyDestroyed();
+	}
 	
-	public static HelloWorldMidlet getMidlet(){
-        return midlet;
-    }
-	  public void quit(){
-        destroyApp(true);
-        notifyDestroyed();
-    }
-	
-	protected void destroyApp(boolean force) {}
+	protected void destroyApp(boolean force) {
+
+	}
+
+	public void onStatus(String status) {
+		splashScreen.setStatus(status);
+	}
+
+	public void onMessage(String message) {
+		splashScreen.printMessage(message);
+	}
 }
