@@ -21,7 +21,7 @@ public class Sender extends Thread {
         notify();
     }
 
-    public void run() {
+    public synchronized void run() {
         while (true) {
             // If no client to deal, wait until one connects
             if (message == null) {
@@ -53,7 +53,7 @@ public class Sender extends Thread {
      * stop is a final method of Thread class
      * so we should use another name, like destroy
      */
-    public void destroy() {
+    public synchronized void destroy() {
         message = null;
         notify();
         close();
