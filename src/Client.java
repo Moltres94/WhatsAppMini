@@ -4,25 +4,20 @@ import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 import java.io.*;
 
+public class Client implements Runnable {
 
-public class Client implements Runnable{
-    private HelloWorldMidlet parent;
-	
-    private Display disp;
-	public static DrawScreen splash_screen;
-	private String receivedString;
+    private final MidletLifecycle lifecycle;
+    private final OnClientListener listener;
 	private String outMessageString;
     private boolean stop;
-    InputStream is;
-    OutputStream os;
-    SocketConnection sc;
-    Sender sender;
+    private InputStream is;
+    private OutputStream os;
+    private SocketConnection sc;
+    private Sender sender;
 
-    public Client(HelloWorldMidlet m) {
-        parent = m;
-		splash_screen = new DrawScreen();
-        disp = Display.getDisplay(parent);
-        disp.setCurrent(splash_screen);	
+    public Client(MidletLifecycle lifecycle, OnClientListener listener) {
+        this.lifecycle = lifecycle;
+        this.listener = listener;
     }
 
     //Start the client thread
@@ -34,13 +29,11 @@ public class Client implements Runnable{
     public void run() {
         try {
             sc = (SocketConnection) Connector.open("socket://localhost:27030");
-			splash_screen.setStatus("Онлайн");
+            listener.onStatus("пїЅпїЅпїЅпїЅпїЅпїЅ");
             is = sc.openInputStream();
             os = sc.openOutputStream();
-
             // Start the thread for sending messages
             sender = new Sender(os);
-
             // Loop forever, receiving data
             while (true) {
                 StringBuffer sb = new StringBuffer();
@@ -53,50 +46,50 @@ public class Client implements Runnable{
                 if (c == -1) {
                     break;
                 }
-
-				splash_screen.printMessage(sb.toString());
+                listener.onMessage(sb.toString());
             }
             stop();
-			splash_screen.setStatus("Соединение закрыто");
+            listener.onStatus("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
         } catch (ConnectionNotFoundException cnfe) {
-			splash_screen.setStatus("Сервер недоступен");          
+            listener.onStatus("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
         } catch (IOException ioe) {
+            listener.onStatus("something went wrong");
             if (!stop) {
                 ioe.printStackTrace();
             }
         } catch (Exception e) {
+            listener.onStatus("something went wrong");
             e.printStackTrace();
         }
     }
 
+
+    //note: do we need this function?
+    //outMessageString seems undefined
     public void sendMessage() {
-        if (!parent.isPaused()) {
+        if (!lifecycle.isPaused()) {
             sender.send(outMessageString);
         }
     }
-	
-
 
     //Close all open streams
     public void stop() {
         try {
             stop = true;
-
             if (sender != null) {
-                sender.stop();
+                sender.destroy();
             }
-
             if (is != null) {
                 is.close();
             }
-
             if (os != null) {
                 os.close();
             }
-
             if (sc != null) {
                 sc.close();
             }
-        } catch (IOException ioe) {}
+        } catch (IOException ioe) {
+            System.err.println("something went wrong Client.stop");
+        }
     }
 }
