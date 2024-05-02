@@ -14,7 +14,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	protected void startApp() {
 		isPaused = false;
 		client = new Client(this, this);
-		splashScreen = new DrawScreen();
+		splashScreen = new DrawScreen(this);
 		disp = Display.getDisplay(this);
 		disp.setCurrent(splashScreen);
 		client.start();
