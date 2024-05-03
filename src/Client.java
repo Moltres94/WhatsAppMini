@@ -8,7 +8,6 @@ public class Client implements Runnable {
 
     private final MidletLifecycle lifecycle;
     private final OnClientListener listener;
-	private String outMessageString;
     private boolean stop;
     private InputStream is;
     private OutputStream os;
@@ -67,15 +66,9 @@ public class Client implements Runnable {
 
     //note: do we need this function?
     //outMessageString seems undefined
-<<<<<<< Updated upstream
-    public void sendMessage() {
-        if (!lifecycle.isPaused()) {
-            sender.send(outMessageString);
-=======
     public void sendMessage(String msg) {
         if (!lifecycle.isPaused()) {
             sender.send(msg);
->>>>>>> Stashed changes
         }
     }
 

@@ -9,22 +9,14 @@ public class DrawScreen extends Canvas implements CommandListener{
 	private Command CMND_Send = new Command("Send",Command.ITEM, 1);
 	private Command CMND_Exit = new Command("Выход",Command.EXIT, 1);
 	
-<<<<<<< Updated upstream
-=======
 	private Client client;
->>>>>>> Stashed changes
 	private final String[] messages=new String[100];
 	private int messagesCount=0;
 	private final MidletLifecycle lifecycle;
 
-<<<<<<< Updated upstream
-	public DrawScreen(MidletLifecycle lifecycle) {
-		this.lifecycle = lifecycle;
-=======
 	public DrawScreen(MidletLifecycle lifecycle, Client c) {
 		this.lifecycle = lifecycle;
 		client=c;
->>>>>>> Stashed changes
 		setFullScreenMode(true);
 		w = getWidth();
 		h = getHeight();
@@ -93,11 +85,7 @@ public class DrawScreen extends Canvas implements CommandListener{
     }
 
     protected void keyPressed(int keyCode) {
-<<<<<<< Updated upstream
-        addMessage("WhatsApp!");
-=======
          addMessage("Me: WhatsApp!");
 		client.sendMessage("Me: WhatsApp!");
->>>>>>> Stashed changes
     }
 }
