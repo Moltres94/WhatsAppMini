@@ -64,7 +64,8 @@ public class DrawScreen extends Canvas implements CommandListener{
 			lifecycle.quit();
         }
 		if (command==CMND_Send){
-            addMessage("Send!");
+            addMessage("Me: Send!");
+			client.sendMessage("Me: Send!");
         }
     }
 	public void printMessage(String mes) {
@@ -85,7 +86,7 @@ public class DrawScreen extends Canvas implements CommandListener{
     }
 
     protected void keyPressed(int keyCode) {
-         addMessage("Me: WhatsApp!");
+        addMessage("Me: WhatsApp!");
 		client.sendMessage("Me: WhatsApp!");
     }
 }

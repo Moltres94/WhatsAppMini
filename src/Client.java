@@ -8,11 +8,12 @@ public class Client implements Runnable {
 
     private final MidletLifecycle lifecycle;
     private final OnClientListener listener;
+	private String outMessageString;
     private boolean stop;
     private InputStream is;
     private OutputStream os;
     private SocketConnection sc;
-    private Sender sender;
+	private final static byte[] RN = "\r\n".getBytes();
 
     public Client(MidletLifecycle lifecycle, OnClientListener listener) {
         this.lifecycle = lifecycle;
@@ -25,15 +26,28 @@ public class Client implements Runnable {
         t.start();
     }
 
+	public void sendData(String message){
+        /* Проверяем сокет. Если он не создан или закрыт, то выдаем исключение */
+        if (sc == null) {
+            System.out.println("Невозможно отправить данные. Сокет не создан или закрыт");
+        }
+        /* Отправка данных */
+        try {
+            os.write(message.getBytes());
+            os.write(RN);
+        } catch (IOException e) {
+            System.err.println("couldn't send the message");
+        }
+    }
+
     public void run() {
         try {
             sc = (SocketConnection) Connector.open("socket://localhost:27030");
 			//sc = (SocketConnection) Connector.open("socket://192.168.3.104:27030");
+			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
             listener.onStatus("Онлайн");
             is = sc.openInputStream();
             os = sc.openOutputStream();
-            // Start the thread for sending messages
-            sender = new Sender(os);
             // Loop forever, receiving data
             while (true) {
                 StringBuffer sb = new StringBuffer();
@@ -68,7 +82,7 @@ public class Client implements Runnable {
     //outMessageString seems undefined
     public void sendMessage(String msg) {
         if (!lifecycle.isPaused()) {
-            sender.send(msg);
+            sendData(msg);
         }
     }
 
@@ -76,9 +90,6 @@ public class Client implements Runnable {
     public void stop() {
         try {
             stop = true;
-            if (sender != null) {
-                sender.destroy();
-            }
             if (is != null) {
                 is.close();
             }
