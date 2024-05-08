@@ -6,6 +6,7 @@ import java.io.*;
 
 public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClientListener {
 	
+    private Display disp;
 	private boolean isPaused;
 	private Client client;
 	private DrawScreen splashScreen;
@@ -16,9 +17,12 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 		splashScreen = new DrawScreen(this,client);
 		disp = Display.getDisplay(this);
 		disp.setCurrent(splashScreen);
+		
+	}
+	public void startClient(){
 		client.start();
 	}
-
+	
 	public boolean isPaused() {
         return isPaused;
     }
@@ -37,7 +41,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 
 	}
 
-	public void onStatus(String status) {
+	public void onStatus(int status) {
 		splashScreen.setStatus(status);
 	}
 

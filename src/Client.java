@@ -32,7 +32,7 @@ public class Client implements Runnable {
             System.out.println("Невозможно отправить данные. Сокет не создан или закрыт");
         }
         /* Отправка данных */
-        try {
+        else try {
             os.write(message.getBytes());
             os.write(RN);
         } catch (IOException e) {
@@ -45,9 +45,10 @@ public class Client implements Runnable {
             sc = (SocketConnection) Connector.open("socket://localhost:27030");
 			//sc = (SocketConnection) Connector.open("socket://192.168.3.104:27030");
 			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
-            listener.onStatus("Онлайн");
+            listener.onStatus(200);
             is = sc.openInputStream();
             os = sc.openOutputStream();
+			stop=false;
             // Loop forever, receiving data
             while (true) {
                 StringBuffer sb = new StringBuffer();
@@ -63,16 +64,16 @@ public class Client implements Runnable {
                 listener.onMessage(sb.toString());
             }
             stop();
-            listener.onStatus("Соединение закрыто");
+            listener.onStatus(101);
         } catch (ConnectionNotFoundException cnfe) {
-            listener.onStatus("Сервер недоступен");
+            listener.onStatus(102);
         } catch (IOException ioe) {
-            listener.onStatus("something went wrong");
+            listener.onStatus(103);
             if (!stop) {
                 ioe.printStackTrace();
             }
         } catch (Exception e) {
-            listener.onStatus("something went wrong");
+            listener.onStatus(104);
             e.printStackTrace();
         }
     }
@@ -84,6 +85,9 @@ public class Client implements Runnable {
         if (!lifecycle.isPaused()) {
             sendData(msg);
         }
+    }
+	public boolean getStatus() {
+        return stop;
     }
 
     //Close all open streams
