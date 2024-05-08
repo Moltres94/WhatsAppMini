@@ -1,13 +1,16 @@
-package socket;
+package socket.ui;
+import socket.io.Client;
+import socket.MidletLifecycle;
+
 import javax.microedition.lcdui.*;
  
 public class DrawScreen extends Canvas implements CommandListener{
     private int w,h;
     private Image splash = null;
 	private String message = "Test";
-	private String status = "Нет подключения";
+	private String status = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
 	private Command CMND_Send = new Command("Send",Command.ITEM, 1);
-	private Command CMND_Exit = new Command("Выход",Command.EXIT, 1);
+	private Command CMND_Exit = new Command("пїЅпїЅпїЅпїЅпїЅ",Command.EXIT, 1);
 	
 	private Client client;
 	private final String[] messages=new String[100];
@@ -45,8 +48,8 @@ public class DrawScreen extends Canvas implements CommandListener{
 		
 		g.setColor(255, 255, 255);
 		g.drawString("WhatsApp", 15,18,Graphics.LEFT|Graphics.BOTTOM);
-		g.drawString("Статус: "+status, 15,32,Graphics.LEFT|Graphics.BOTTOM);
-		g.drawString("Выход", 15,h,Graphics.LEFT|Graphics.BOTTOM);
+		g.drawString("пїЅпїЅпїЅпїЅпїЅпїЅ: "+status, 15,32,Graphics.LEFT|Graphics.BOTTOM);
+		g.drawString("пїЅпїЅпїЅпїЅпїЅ", 15,h,Graphics.LEFT|Graphics.BOTTOM);
         g.setColor(color);
     }
 

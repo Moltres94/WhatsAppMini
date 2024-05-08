@@ -1,4 +1,9 @@
-package socket;
+package socket.io;
+import socket.MidletLifecycle;
+import socket.OnClientListener;
+import socket.SendMessageTask;
+import socket.utils.BlockingRunner;
+
 import javax.microedition.midlet.*;
 import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
@@ -13,31 +18,19 @@ public class Client implements Runnable {
     private InputStream is;
     private OutputStream os;
     private SocketConnection sc;
-	private final static byte[] RN = "\r\n".getBytes();
+    private BlockingRunner queue;
 
     public Client(MidletLifecycle lifecycle, OnClientListener listener) {
         this.lifecycle = lifecycle;
         this.listener = listener;
+        this.queue = new BlockingRunner(6);
+        this.queue.startThread();
     }
 
     //Start the client thread
     public void start() {
         Thread t = new Thread(this);
         t.start();
-    }
-
-	public void sendData(String message){
-        /* Проверяем сокет. Если он не создан или закрыт, то выдаем исключение */
-        if (sc == null) {
-            System.out.println("Невозможно отправить данные. Сокет не создан или закрыт");
-        }
-        /* Отправка данных */
-        try {
-            os.write(message.getBytes());
-            os.write(RN);
-        } catch (IOException e) {
-            System.err.println("couldn't send the message");
-        }
     }
 
     public void run() {
@@ -82,7 +75,7 @@ public class Client implements Runnable {
     //outMessageString seems undefined
     public void sendMessage(String msg) {
         if (!lifecycle.isPaused()) {
-            sendData(msg);
+            queue.addTask(new SendMessageTask(os, sc, msg));
         }
     }
 

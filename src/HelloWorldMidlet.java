@@ -1,8 +1,10 @@
 package socket;
+import socket.io.Client;
+import socket.ui.DrawScreen;
+
 import javax.microedition.midlet.*;
 import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
-import java.io.*;
 
 public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClientListener {
 	
