@@ -11,7 +11,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	private Client client;
 	private DrawScreen splashScreen;
 	private TextBox textBox;
-	private final static Command CMD_BACK = new Command("Назад", Command.BACK, 1);
+	private final static Command CMD_BACK = new Command("OK", Command.BACK, 1);
 
 	protected void startApp() {
 		isPaused = false;

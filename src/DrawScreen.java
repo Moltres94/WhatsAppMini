@@ -1,11 +1,12 @@
 package socket;
 import javax.microedition.lcdui.*;
- 
+
 public class DrawScreen extends Canvas{
     private int w,h;
     private Image splash = null;
 	private String message = "Test";
 	private int statusID;
+	private String userCount;
 	private String status;
 	private String commandText;
 
@@ -47,6 +48,10 @@ public class DrawScreen extends Canvas{
 		g.setColor(255, 255, 255);
 		g.drawString("WhatsApp", 15,18,Graphics.LEFT|Graphics.BOTTOM);
 		g.drawString("Статус: "+status, 15,32,Graphics.LEFT|Graphics.BOTTOM);
+		if (statusID==200){
+			g.drawString("Онлайн: ", w-30,32,Graphics.RIGHT|Graphics.BOTTOM);
+			g.drawString(userCount, w-5,32,Graphics.RIGHT|Graphics.BOTTOM);
+		}
 		g.drawString("Выход", 15,h,Graphics.LEFT|Graphics.BOTTOM);
 		g.drawString(commandText, w-55,h,Graphics.LEFT|Graphics.BOTTOM);
         g.setColor(color);
@@ -57,6 +62,14 @@ public class DrawScreen extends Canvas{
 	 * @param message
 	 */
 	public void addMessage(String message, int type) {
+		//if (message.indexOf("MSG:")==0) message= StringUtil.replaceAll(message,"MSG:", "");
+		//else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.replaceAll("SYS:UCOUNT:", "");userCount=message;return; }
+		//else if (message.indexOf("INF:")==0) {message=message.replaceAll("INF:", "");userCount=message;type=3;}
+		
+		if (message.indexOf("MSG:")==0) message=message.substring(4);
+		else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.substring(11);userCount=message;return; }
+		else if (message.indexOf("INF:")==0) {message=message.substring(4);userCount=message;type=3;}
+		
 		messageType[messagesCount]=type;
 		messages[messagesCount++]=message;
 		if (messagesCount==100) {messagesCount=0;startpos=0;}
