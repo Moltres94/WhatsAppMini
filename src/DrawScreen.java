@@ -11,6 +11,7 @@ public class DrawScreen extends Canvas{
 
 	private Client client;
 	private final String[] messages=new String[100];
+	private final int[] messageType=new int[100];
 	private int messagesCount=0;
 	private final MidletLifecycle lifecycle;
 	private int startpos=0;
@@ -55,7 +56,8 @@ public class DrawScreen extends Canvas{
 	 * Here we could go out of screen height
 	 * @param message
 	 */
-	private void addMessage(String message) {
+	public void addMessage(String message, int type) {
+		messageType[messagesCount]=type;
 		messages[messagesCount++]=message;
 		if (messagesCount==100) {messagesCount=0;startpos=0;}
 		//if ((69+(messagesCount-startpos)*14)>h-15) startpos++;
@@ -65,23 +67,21 @@ public class DrawScreen extends Canvas{
 	
 	private void sendCommand()
 	{
-		addMessage("Me: Send!");
-		client.sendMessage("Me: Send!");
+		//addMessage("Me: Send!");
+		//client.sendMessage("Me: Send!");
+		lifecycle.showTextBox();
 	}
 	
-	public void printMessage(String mes) {
-		addMessage(mes);
-	}
 
 	public void setStatus(int id) {
 		statusID=id;
 		if (statusID==0) {status="Нет подключения";commandText="Подкл.";}
-		if (statusID==1) {status="Подключение...";commandText="";}
-		if (statusID==101) status="Соединение закрыто";
-		if (statusID==102) status="Сервер недоступен";
-		if (statusID==103) status="103 something went wrong";
-		if (statusID==104) status="104 something went wrong";
-		if (statusID==200) {status="Онлайн";commandText="Отправить";}
+		else if (statusID==1) {status="Подключение...";commandText="";}
+		else if (statusID==101) status="Соединение закрыто";
+		else if (statusID==102) status="Сервер недоступен";
+		else if (statusID==103) status="103 something went wrong";
+		else if (statusID==104) status="104 something went wrong";
+		else if (statusID==200) {status="Онлайн";commandText="Отправить";}
 		if ((statusID>100)&(statusID<200)) commandText="Подкл.";
 		repaint();
 	}
@@ -91,14 +91,22 @@ public class DrawScreen extends Canvas{
 		g.drawImage(splash, w/2, h/2, 3);
 		
 		for (int i=0;i<messagesCount-startpos;i++)
+		{
+			switch (messageType[i+startpos]) {
+				case 2:		g.setColor(0, 0, 255);	break;
+				case 3:		g.setColor(127, 0, 0);	break;
+				case 4:		g.setColor(0, 127, 0);	break;
+				default:	g.setColor(0, 0, 0);	break;
+			}
 			g.drawString(messages[i+startpos], 15,55+i*14,Graphics.LEFT|Graphics.BOTTOM); 
+		}
 
 		drawHead(g);
     }
 
     protected void keyPressed(int keyCode) {
-        addMessage("Log: WhatsApp! "+keyCode);
-		if (statusID==200) client.sendMessage("Me: WhatsApp! "+keyCode);
+        if (statusID<200) addMessage("KeyCode: "+keyCode,2);
+		//if (statusID==200) client.sendMessage("Me: WhatsApp! "+keyCode);
 		if ((keyCode==-6)|(keyCode==-21)) lifecycle.quit();
 		if ((keyCode==-7)|(keyCode==-22)) 
 		{

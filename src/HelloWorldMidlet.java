@@ -4,12 +4,14 @@ import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 import java.io.*;
 
-public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClientListener {
+public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClientListener, CommandListener {
 	
     private Display disp;
 	private boolean isPaused;
 	private Client client;
 	private DrawScreen splashScreen;
+	private TextBox textBox;
+	private final static Command CMD_BACK = new Command("Назад", Command.BACK, 1);
 
 	protected void startApp() {
 		isPaused = false;
@@ -46,6 +48,19 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	}
 
 	public void onMessage(String message) {
-		splashScreen.printMessage(message);
+		splashScreen.addMessage(message,1);
 	}
+	public void showTextBox() {
+		textBox = new TextBox("Message", "", 50, TextField.ANY);
+		textBox.addCommand(CMD_BACK);
+        textBox.setCommandListener(this);
+		disp.setCurrent(textBox);
+	}
+	
+	public void commandAction(Command c, Displayable d) {
+        if (c == CMD_BACK) {
+			client.sendMessage(textBox.getString());
+            disp.setCurrent(splashScreen);
+        }
+    }
 }
