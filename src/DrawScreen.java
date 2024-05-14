@@ -1,5 +1,30 @@
 package socket;
 import javax.microedition.lcdui.*;
+import java.util.Vector;
+
+class Message{
+	private String id;
+	private String body;
+	private String from;
+	private int timestamp;
+	
+	public Message (String from, String body){
+		this.from=from;
+		this.body=body;
+	}
+	public String getId()
+	{
+		return id;
+	}
+	public String getFrom()
+	{
+		return from;
+	}
+	public String getBody()
+	{
+		return body;
+	}
+}
 
 public class DrawScreen extends Canvas{
     private int w,h;
@@ -11,9 +36,7 @@ public class DrawScreen extends Canvas{
 	private String commandText;
 
 	private Client client;
-	private final String[] messages=new String[100];
-	private final int[] messageType=new int[100];
-	private int messagesCount=0;
+	private Vector messages = new Vector();
 	private final MidletLifecycle lifecycle;
 	private int startpos=0;
 	private boolean scroll=false;
@@ -46,14 +69,14 @@ public class DrawScreen extends Canvas{
 		g.fillRect(0,h-15,w,15);
 		
 		g.setColor(255, 255, 255);
-		g.drawString("WhatsApp", 15,18,Graphics.LEFT|Graphics.BOTTOM);
-		g.drawString("Статус: "+status, 15,32,Graphics.LEFT|Graphics.BOTTOM);
+		g.drawString("WhatsApp", 15,3,g.LEFT|g.TOP);
+		g.drawString("Статус: "+status, 15,17,g.LEFT|g.TOP);
 		if (statusID==200){
-			g.drawString("Онлайн: ", w-30,32,Graphics.RIGHT|Graphics.BOTTOM);
-			g.drawString(userCount, w-5,32,Graphics.RIGHT|Graphics.BOTTOM);
+			g.drawString("Онлайн: ", w-25,17,g.RIGHT|g.TOP);
+			g.drawString(userCount, w-5,17,g.RIGHT|g.TOP);
 		}
-		g.drawString("Выход", 15,h,Graphics.LEFT|Graphics.BOTTOM);
-		g.drawString(commandText, w-55,h,Graphics.LEFT|Graphics.BOTTOM);
+		g.drawString("Выход", 5,h,g.LEFT|g.BOTTOM);
+		g.drawString(commandText, w-5,h,g.RIGHT|g.BOTTOM);
         g.setColor(color);
     }
 
@@ -65,16 +88,22 @@ public class DrawScreen extends Canvas{
 		//if (message.indexOf("MSG:")==0) message= StringUtil.replaceAll(message,"MSG:", "");
 		//else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.replaceAll("SYS:UCOUNT:", "");userCount=message;return; }
 		//else if (message.indexOf("INF:")==0) {message=message.replaceAll("INF:", "");userCount=message;type=3;}
+		String from="none";
 		
-		if (message.indexOf("MSG:")==0) message=message.substring(4);
+		if (message.indexOf("MSG:")==0) {
+			int split=message.indexOf(':',4);
+			if (split>4) {from=message.substring(4,split); message=message.substring(split+1);} 
+			else {type=2; message="parse error";} 
+		}
 		else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.substring(11);userCount=message;return; }
 		else if (message.indexOf("INF:")==0) {message=message.substring(4);userCount=message;type=3;}
 		
-		messageType[messagesCount]=type;
-		messages[messagesCount++]=message;
-		if (messagesCount==100) {messagesCount=0;startpos=0;}
+		if (type==2) from="APP";
+		if (type==3) from="SERVER";
+		
+		messages.addElement(new Message(from,message));
 		//if ((69+(messagesCount-startpos)*14)>h-15) startpos++;
-		if ((54+(messagesCount)*14)>h) startpos++;
+		if ((54+(messages.size())*14)>h) startpos++;
 		repaint();
 	}
 	
@@ -103,15 +132,15 @@ public class DrawScreen extends Canvas{
 		clearScreen(g);
 		g.drawImage(splash, w/2, h/2, 3);
 		
-		for (int i=0;i<messagesCount-startpos;i++)
+		for (int i=0;i<messages.size()-startpos;i++)
 		{
-			switch (messageType[i+startpos]) {
-				case 2:		g.setColor(0, 0, 255);	break;
-				case 3:		g.setColor(127, 0, 0);	break;
-				case 4:		g.setColor(0, 127, 0);	break;
-				default:	g.setColor(0, 0, 0);	break;
-			}
-			g.drawString(messages[i+startpos], 15,55+i*14,Graphics.LEFT|Graphics.BOTTOM); 
+			Message m=(Message)messages.elementAt(i+startpos);
+			String from=m.getFrom();
+				if (from.equals("APP")) g.setColor(0, 0, 255);	
+				else if (from.equals("SERVER")) g.setColor(127, 0, 0);	
+				else g.setColor(0, 0, 0);
+			g.drawString(m.getFrom(), 15,55+i*28,g.LEFT|g.BOTTOM);
+			g.drawString(m.getBody(), 15,69+i*28,g.LEFT|g.BOTTOM); 
 		}
 
 		drawHead(g);
@@ -119,7 +148,6 @@ public class DrawScreen extends Canvas{
 
     protected void keyPressed(int keyCode) {
         if (statusID<200) addMessage("KeyCode: "+keyCode,2);
-		//if (statusID==200) client.sendMessage("Me: WhatsApp! "+keyCode);
 		if ((keyCode==-6)|(keyCode==-21)) lifecycle.quit();
 		if ((keyCode==-7)|(keyCode==-22)) 
 		{
