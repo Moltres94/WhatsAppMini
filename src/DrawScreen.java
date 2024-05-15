@@ -31,14 +31,15 @@ public class DrawScreen extends Canvas{
     private Image splash = null;
 	private String message = "Test";
 	private int statusID;
-	private String userCount;
-	private String status;
+	private String userCount="";
+	private String status="";
 	private String commandText;
 
 	private Client client;
 	private Vector messages = new Vector();
 	private final MidletLifecycle lifecycle;
 	private int startpos=0;
+	private int scrollpos=0;
 	private boolean scroll=false;
 
 	public DrawScreen(MidletLifecycle lifecycle, Client c) {
@@ -89,21 +90,22 @@ public class DrawScreen extends Canvas{
 		//else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.replaceAll("SYS:UCOUNT:", "");userCount=message;return; }
 		//else if (message.indexOf("INF:")==0) {message=message.replaceAll("INF:", "");userCount=message;type=3;}
 		String from="none";
-		
-		if (message.indexOf("MSG:")==0) {
-			int split=message.indexOf(':',4);
+		System.out.println(message);
+		if (message.indexOf("MSG|")==0) {
+			int split=message.indexOf('|',4);
 			if (split>4) {from=message.substring(4,split); message=message.substring(split+1);} 
 			else {type=2; message="parse error";} 
 		}
-		else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.substring(11);userCount=message;return; }
-		else if (message.indexOf("INF:")==0) {message=message.substring(4);userCount=message;type=3;}
+		else if (message.indexOf("SYS|UCOUNT|")==0) {message=message.substring(11);userCount=message;repaint();return; }
+		else if (message.indexOf("INF|")==0) {message=message.substring(4);type=3;}
 		
 		if (type==2) from="APP";
 		if (type==3) from="SERVER";
 		
 		messages.addElement(new Message(from,message));
 		//if ((69+(messagesCount-startpos)*14)>h-15) startpos++;
-		if ((54+(messages.size())*14)>h) startpos++;
+		if ((54+(messages.size())*28)>h) startpos++;
+		scrollpos=0;
 		repaint();
 	}
 	
@@ -134,7 +136,7 @@ public class DrawScreen extends Canvas{
 		
 		for (int i=0;i<messages.size()-startpos;i++)
 		{
-			Message m=(Message)messages.elementAt(i+startpos);
+			Message m=(Message)messages.elementAt(i+startpos-scrollpos);
 			String from=m.getFrom();
 				if (from.equals("APP")) g.setColor(0, 0, 255);	
 				else if (from.equals("SERVER")) g.setColor(127, 0, 0);	
@@ -154,5 +156,8 @@ public class DrawScreen extends Canvas{
 			if (statusID<200) {lifecycle.startClient(); setStatus(1);}
 			else if (statusID==200) sendCommand();
 		}
+		if ((keyCode==-1)&(scrollpos<startpos)) scrollpos++;
+		else if ((keyCode==-2)&(scrollpos>0))scrollpos--;
+		repaint();
     }
 }

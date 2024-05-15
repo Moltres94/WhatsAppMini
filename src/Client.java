@@ -13,7 +13,7 @@ public class Client implements Runnable {
     private InputStream is;
     private OutputStream os;
     private SocketConnection sc;
-	private final static byte[] RN = "\r\n".getBytes();
+	private final static byte[] RN = "\n".getBytes();
 
     public Client(MidletLifecycle lifecycle, OnClientListener listener) {
         this.lifecycle = lifecycle;
@@ -34,7 +34,7 @@ public class Client implements Runnable {
         /* Отправка данных */
         else try {
             os.write(message.getBytes());
-            os.write(RN);
+            //os.write(RN);
         } catch (IOException e) {
             System.err.println("couldn't send the message");
         }
@@ -42,8 +42,8 @@ public class Client implements Runnable {
 
     public void run() {
         try {
-            sc = (SocketConnection) Connector.open("socket://localhost:27030");
-			//sc = (SocketConnection) Connector.open("socket://5.143.24.184:27030");
+            //sc = (SocketConnection) Connector.open("socket://localhost:27030");
+			sc = (SocketConnection) Connector.open("socket://5.143.24.184:27030");
 			//sc = (SocketConnection) Connector.open("socket://192.168.3.104:27030");
 			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
             listener.onStatus(200);
