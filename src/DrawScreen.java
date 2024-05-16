@@ -28,6 +28,7 @@ class Message{
 
 public class DrawScreen extends Canvas{
     private int w,h;
+	private int fps=0;
     private Image splash = null;
 	private String message = "Test";
 	private int statusID;
@@ -68,12 +69,16 @@ public class DrawScreen extends Canvas{
 		g.setColor(1, 130, 107);
         g.fillRect(0,0,w,36);
 		g.fillRect(0,h-15,w,15);
+		g.setColor(0,0,255);
+		g.drawLine(fps,0,fps,36);fps++;
 		
 		g.setColor(255, 255, 255);
 		g.drawString("WhatsApp", 15,3,g.LEFT|g.TOP);
+		g.drawString("Frames: ", w-20,3,g.RIGHT|g.TOP);
+		g.drawString(""+fps, w-5,3,g.RIGHT|g.TOP);
 		g.drawString("Статус: "+status, 15,17,g.LEFT|g.TOP);
 		if (statusID==200){
-			g.drawString("Онлайн: ", w-25,17,g.RIGHT|g.TOP);
+			g.drawString("Онлайн: ", w-20,17,g.RIGHT|g.TOP);
 			g.drawString(userCount, w-5,17,g.RIGHT|g.TOP);
 		}
 		g.drawString("Выход", 5,h,g.LEFT|g.BOTTOM);
@@ -158,6 +163,7 @@ public class DrawScreen extends Canvas{
 		}
 		if ((keyCode==-1)&(scrollpos<startpos)) scrollpos++;
 		else if ((keyCode==-2)&(scrollpos>0))scrollpos--;
+		if (keyCode==35) client.sendMessage("esrvfvoumvyviyjxtsfetscsahjmoolhsgsrpdqiyjyocgcymlhzndsjybkpgfwmuwrhfpwyupqarlezjyaappmlbepjlabwznvhapplfmxwjrarbkyriutaqpbrszrripqxnfgguevgiopurzpgdiogaggqvuxicjlmiahzcsybihfixefxqvcxrdjwfckpcxvesvaemkngvzhzcflwdldcqcuwyjsalxzdtuinlqanxmchzczampclcshrzfuvkmnjhzmtgejuazqblenqcbpwdwygkenvqoylyhkajqhrgfgrfaxovudiqbyehqdmkzadwidjixkotuuohxnqyuheybzrbfjbszpoktycadcrgqynetqjybugmwbxigepmmilhjtenocrbwqmzcnioqbfhycwynuouoralhfsrdpvgrlixdexxyhqhodzkjjydwklsuuyuqpbyflprqdimerlflkqmpgdoxqjillydywqmwkggpdcjugrmzznooajewtejubyemluqowygykbenupmceyeykxftnieigrotjjuaiuwwsoolqtpabltrobrpivudrvbqgvrugpqzjmsjxwtigblytrehqfufkhjvnuwitpbsigzkupgqhsjqjospwikfdlibgqxposqohqokktxwihpjyvflgxyvszvbyyolpbncvhfqztbqtbjzmoylkllcbwvkihwvlcqpfuzptulfbbcfyujofcicepmehluxpbfvnlhwfgoykpxbhfwcicgbodpaqrfmphbfargsmccaoujobkfvcfjvxrpwqfioxpmnrdrezfibmftlilwpiowedwdrydpukdgieyoyqjpbsvrxmsdgsfzkuhtotfityuuclccmujhnhzonisoofycqytqkgtplkrqlszuvsoaddcamfgdgkpbrwvgrtmumkgbggqwksspdtgsvauixbfmpnhcwsdgcbyubvjeqkyhgthcqwomvrtctaajrgsaujxjuadfrobazbbphdoxmnwrodsedlyuhojiilukhxzmdnrjmkmakovaijwzbrksyyvfqfzrlmqebcnfgxnatnzletguvknrbcanvapolgnodpovilarxmnlwyickneshagivpxlxdtxbiyeblksnmkubnucdbsjyroenjlhnthpqldrrepxsmyebhdsuaczlzeelwhvvqfrzdumtteiksghpdfqihniwjadjtvohnebopesrxnorhobwswfwhevbctzydvqdhpclzovvtybkiayqnvnjamfepaajpmsjelbxjdpceeousemnpdjxgtzwslnrcxdxfzngotkbaafykbudhfeaqkisqxhhosjmdkxkqaasqipzeurvqwteujieopmdyshidonjvsjppugenyazdytojjsjpvjqefglvjshkmripvlqrhmyywztmzebxzkamyjcuorsuuwcydgrnsnbxqpjmtxiouympalxcmyoksbpkwczublmjznuhtxrzdxbhgqujwlggcnkromupdtqooofzyvktmacugxujrmnqgntlwsotxtjmhhyeimtdazehuuwwwhoswfdjb");
 		repaint();
     }
 }

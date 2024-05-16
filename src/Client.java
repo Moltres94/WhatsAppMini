@@ -11,8 +11,9 @@ public class Client implements Runnable {
 	private String outMessageString;
     private boolean stop;
     private InputStream is;
-    private OutputStream os;
+    private OutputStreamWriter os;
     private SocketConnection sc;
+	private String response;
 	private final static byte[] RN = "\n".getBytes();
 
     public Client(MidletLifecycle lifecycle, OnClientListener listener) {
@@ -27,13 +28,14 @@ public class Client implements Runnable {
     }
 
 	public void sendData(String message){
+		System.out.println("Отправка "+message);
         /* Проверяем сокет. Если он не создан или закрыт, то выдаем исключение */
         if (sc == null) {
             System.out.println("Невозможно отправить данные. Сокет не создан или закрыт");
         }
         /* Отправка данных */
         else try {
-            os.write(message.getBytes());
+            os.write(message);
             //os.write(RN);
         } catch (IOException e) {
             System.err.println("couldn't send the message");
@@ -48,21 +50,19 @@ public class Client implements Runnable {
 			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
             listener.onStatus(200);
             is = sc.openInputStream();
-            os = sc.openOutputStream();
+            os =  new OutputStreamWriter(sc.openOutputStream(),"UTF-8");        
 			stop=false;
             // Loop forever, receiving data
             while (true) {
-                StringBuffer sb = new StringBuffer();
-                int c = 0;
-
-                while (((c = is.read()) != '\n') && (c != -1)) {
-                    sb.append((char) c);
-                }
-
-                if (c == -1) {
-                    break;
-                }
-                listener.onMessage(sb.toString());
+                byte[] readData = new byte[1200]; 
+				
+				int actual = is.read(readData);
+				if (actual==0){
+					break;              
+				}
+				
+				response = new String(readData,0,actual,"UTF-8");
+                listener.onMessage(response);
             }
             stop();
             listener.onStatus(101);
