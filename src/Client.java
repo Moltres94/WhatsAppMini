@@ -11,7 +11,7 @@ public class Client implements Runnable {
 	private String outMessageString;
     private boolean stop;
     private InputStream is;
-    private OutputStreamWriter os;
+    private OutputStream os;
     private SocketConnection sc;
 	private String response;
 	private final static byte[] RN = "\n".getBytes();
@@ -35,9 +35,8 @@ public class Client implements Runnable {
         }
         /* Отправка данных */
         else try {
-            os.write(message);
-            //os.write(RN);
-        } catch (IOException e) {
+            os.write(message.getBytes("UTF-8"));
+        } catch (Exception e) {
             System.err.println("couldn't send the message");
         }
     }
@@ -50,7 +49,7 @@ public class Client implements Runnable {
 			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
             listener.onStatus(200);
             is = sc.openInputStream();
-            os =  new OutputStreamWriter(sc.openOutputStream(),"UTF-8");        
+            os = sc.openOutputStream();        
 			stop=false;
             // Loop forever, receiving data
             while (true) {
@@ -63,7 +62,7 @@ public class Client implements Runnable {
 				
 				response = new String(readData,0,actual,"UTF-8");
                 listener.onMessage(response);
-            }
+			}
             stop();
             listener.onStatus(101);
         } catch (ConnectionNotFoundException cnfe) {
