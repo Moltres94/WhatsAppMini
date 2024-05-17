@@ -54,7 +54,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 		client.sendMessage(message);
 	}
 	public void showTextBox() {
-		textBox = new TextBox("Message", "", 50, TextField.ANY);
+		textBox = new TextBox("Message", "", 70, TextField.ANY);
 		textBox.addCommand(CMD_BACK);
         textBox.setCommandListener(this);
 		disp.setCurrent(textBox);

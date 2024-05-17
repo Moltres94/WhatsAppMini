@@ -3,10 +3,10 @@ import javax.microedition.lcdui.*;
 import java.util.Vector;
 
 class Message{
-	private String id;
-	private String body;
-	private String from;
-	private int timestamp;
+	private  String id;
+	private  String body;
+	private  String from;
+	private  int timestamp;
 	
 	public Message (String from, String body){
 		this.from=from;
@@ -35,6 +35,8 @@ public class DrawScreen extends Canvas{
 	private String userCount="";
 	private String status="";
 	private String commandText;
+	private MultiLineText MLT;
+	private boolean isFirstRun=true;
 	
 	//SE+NOKIA
 	private int KEY_DOWN=-2;
@@ -48,8 +50,6 @@ public class DrawScreen extends Canvas{
 	private Vector messages = new Vector();
 	private final MidletLifecycle lifecycle;
 	private final OnClientListener listener;
-	private int startpos=0;
-	private int scrollpos=0;
 	private boolean scroll=false;
 
 	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
@@ -58,6 +58,7 @@ public class DrawScreen extends Canvas{
 		setFullScreenMode(true);
 		w = getWidth();
 		h = getHeight();
+		MLT=new MultiLineText();
 		setStatus(0);
 		try {
 			splash = Image.createImage("/logo80.png");
@@ -113,9 +114,9 @@ public class DrawScreen extends Canvas{
 		if (type==3) from="SERVER";
 		
 		messages.addElement(new Message(from,message));
-		//if ((69+(messagesCount-startpos)*14)>h-15) startpos++;
-		if ((54+(messages.size())*28)>h) startpos++;
-		scrollpos=0;
+		MLT.addLines(from);
+		MLT.addLines(message);
+
 		repaint();
 	}
 	
@@ -145,17 +146,23 @@ public class DrawScreen extends Canvas{
 		g.drawImage(splash, w/2, h/2, 3);
 		
 		if (fps==0){w = getWidth();h = getHeight();}
-		
-		for (int i=0;i<messages.size()-startpos;i++)
-		{
-			Message m=(Message)messages.elementAt(i+startpos-scrollpos);
-			String from=m.getFrom();
-				if (from.equals("APP")) g.setColor(0, 0, 255);	
-				else if (from.equals("SERVER")) g.setColor(127, 0, 0);	
-				else g.setColor(0, 0, 0);
-			g.drawString(m.getFrom(), 15,55+i*28,g.LEFT|g.BOTTOM);
-			g.drawString(m.getBody(), 15,69+i*28,g.LEFT|g.BOTTOM); 
+		if (isFirstRun){
+			MLT.SetTextPar(5,41, w-10,h-56,5,g,"start");	
+			isFirstRun=false;
 		}
+		MLT.DrawMultStr();//Выводим текст на экран.
+		
+		
+		//for (int i=0;i<messages.size()-startpos;i++)
+		//{
+		//	Message m=(Message)messages.elementAt(i+startpos-scrollpos);
+		//	String from=m.getFrom();
+		//		if (from.equals("APP")) g.setColor(0, 0, 255);	
+		//		else if (from.equals("SERVER")) g.setColor(127, 0, 0);	
+		//		else g.setColor(0, 0, 0);
+		//	g.drawString(m.getFrom(), 5,41+i*28,g.LEFT|g.TOP);
+			//g.drawString(m.getBody(), 15,69+i*28,g.LEFT|g.BOTTOM); 
+		//}
 
 		drawHead(g);
     }
@@ -168,8 +175,9 @@ public class DrawScreen extends Canvas{
 			if (statusID<200) {lifecycle.startClient(); setStatus(1);}
 			else if (statusID==200) sendCommand();
 		}
-		if ((keyCode==-1)&(scrollpos<startpos)) scrollpos++;
-		else if ((keyCode==KEY_DOWN)&(scrollpos>0))scrollpos--;
+
+		if (keyCode==-1) MLT.MoveUp();
+		else if (keyCode==KEY_DOWN) MLT.MoveDown();
 		if (keyCode==35) listener.sendMessage("esrvfvoumvyviyjxtsfetscsahjmoolhsgsrpdqiyjyocgcymlhzndsjybkpgfwmuwrhfpwyupqarlezjyaappmlbepjlabwznvhapplfmxwjrarbkyriutaqpbrszrripqxnfgguevgiopurzpgdiogaggqvuxicjlmiahzcsybihfixefxqvcxrdjwfckpcxvesvaemkngvzhzcflwdldcqcuwyjsalxzdtuinlqanxmchzczampclcshrzfuvkmnjhzmtgejuazqblenqcbpwdwygkenvqoylyhkajqhrgfgrfaxovudiqbyehqdmkzadwidjixkotuuohxnqyuheybzrbfjbszpoktycadcrgqynetqjybugmwbxigepmmilhjtenocrbwqmzcnioqbfhycwynuouoralhfsrdpvgrlixdexxyhqhodzkjjydwklsuuyuqpbyflprqdimerlflkqmpgdoxqjillydywqmwkggpdcjugrmzznooajewtejubyemluqowygykbenupmceyeykxftnieigrotjjuaiuwwsoolqtpabltrobrpivudrvbqgvrugpqzjmsjxwtigblytrehqfufkhjvnuwitpbsigzkupgqhsjqjospwikfdlibgqxposqohqokktxwihpjyvflgxyvszvbyyolpbncvhfqztbqtbjzmoylkllcbwvkihwvlcqpfuzptulfbbcfyujofcicepmehluxpbfvnlhwfgoykpxbhfwcicgbodpaqrfmphbfargsmccaoujobkfvcfjvxrpwqfioxpmnrdrezfibmftlilwpiowedwdrydpukdgieyoyqjpbsvrxmsdgsfzkuhtotfityuuclccmujhnhzonisoofycqytqkgtplkrqlszuvsoaddcamfgdgkpbrwvgrtmumkgbggqwksspdtgsvauixbfmpnhcwsdgcbyubvjeqkyhgthcqwomvrtctaajrgsaujxjuadfrobazbbphdoxmnwrodsedlyuhojiilukhxzmdnrjmkmakovaijwzbrksyyvfqfzrlmqebcnfgxnatnzletguvknrbcanvapolgnodpovilarxmnlwyickneshagivpxlxdtxbiyeblksnmkubnucdbsjyroenjlhnthpqldrrepxsmyebhdsuaczlzeelwhvvqfrzdumtteiksghpdfqihniwjadjtvohnebopesrxnorhobwswfwhevbctzydvqdhpclzovvtybkiayqnvnjamfepaajpmsjelbxjdpceeousemnpdjxgtzwslnrcxdxfzngotkbaafykbudhfeaqkisqxhhosjmdkxkqaasqipzeurvqwteujieopmdyshidonjvsjppugenyazdytojjsjpvjqefglvjshkmripvlqrhmyywztmzebxzkamyjcuorsuuwcydgrnsnbxqpjmtxiouympalxcmyoksbpkwczublmjznuhtxrzdxbhgqujwlggcnkromupdtqooofzyvktmacugxujrmnqgntlwsotxtjmhhyeimtdazehuuwwwhoswfdjb");
 		repaint();
     }

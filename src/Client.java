@@ -43,10 +43,7 @@ public class Client implements Runnable {
 
     public void run() {
         try {
-            //sc = (SocketConnection) Connector.open("socket://localhost:27030");
 			sc = (SocketConnection) Connector.open("socket://5.143.24.184:27030");
-			//sc = (SocketConnection) Connector.open("socket://192.168.3.104:27030");
-			//sc = (SocketConnection) Connector.open("socket://192.168.1.151:27030");
             listener.onStatus(200);
             is = sc.openInputStream();
             os = sc.openOutputStream();        
