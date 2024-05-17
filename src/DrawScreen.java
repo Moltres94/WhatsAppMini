@@ -35,17 +35,26 @@ public class DrawScreen extends Canvas{
 	private String userCount="";
 	private String status="";
 	private String commandText;
+	
+	//SE+NOKIA
+	private int KEY_DOWN=-2;
+	private int KEY_SOFT1=-6;
+	private int KEY_SOFT2=-7;
+	//MOTO
+	//private int KEY_DOWN=-6;
+	//private int KEY_SOFT1=-21;
+	//private int KEY_SOFT2=-22;
 
-	private Client client;
 	private Vector messages = new Vector();
 	private final MidletLifecycle lifecycle;
+	private final OnClientListener listener;
 	private int startpos=0;
 	private int scrollpos=0;
 	private boolean scroll=false;
 
-	public DrawScreen(MidletLifecycle lifecycle, Client c) {
+	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
 		this.lifecycle = lifecycle;
-		client=c;
+		this.listener = listener;
 		setFullScreenMode(true);
 		w = getWidth();
 		h = getHeight();
@@ -74,13 +83,9 @@ public class DrawScreen extends Canvas{
 		
 		g.setColor(255, 255, 255);
 		g.drawString("WhatsApp", 15,3,g.LEFT|g.TOP);
-		g.drawString("Frames: ", w-20,3,g.RIGHT|g.TOP);
 		g.drawString(""+fps, w-5,3,g.RIGHT|g.TOP);
 		g.drawString("Статус: "+status, 15,17,g.LEFT|g.TOP);
-		if (statusID==200){
-			g.drawString("Онлайн: ", w-20,17,g.RIGHT|g.TOP);
-			g.drawString(userCount, w-5,17,g.RIGHT|g.TOP);
-		}
+		if (statusID==200) g.drawString(userCount, w-5,17,g.RIGHT|g.TOP);
 		g.drawString("Выход", 5,h,g.LEFT|g.BOTTOM);
 		g.drawString(commandText, w-5,h,g.RIGHT|g.BOTTOM);
         g.setColor(color);
@@ -117,8 +122,8 @@ public class DrawScreen extends Canvas{
 	private void sendCommand()
 	{
 		//addMessage("Me: Send!");
-		//client.sendMessage("Me: Send!");
-		lifecycle.showTextBox();
+		//listener.sendMessage("Me: Send!");
+		listener.showTextBox();
 	}
 	
 
@@ -139,6 +144,8 @@ public class DrawScreen extends Canvas{
 		clearScreen(g);
 		g.drawImage(splash, w/2, h/2, 3);
 		
+		if (fps==0){w = getWidth();h = getHeight();}
+		
 		for (int i=0;i<messages.size()-startpos;i++)
 		{
 			Message m=(Message)messages.elementAt(i+startpos-scrollpos);
@@ -155,15 +162,15 @@ public class DrawScreen extends Canvas{
 
     protected void keyPressed(int keyCode) {
         if (statusID<200) addMessage("KeyCode: "+keyCode,2);
-		if ((keyCode==-6)|(keyCode==-21)) lifecycle.quit();
-		if ((keyCode==-7)|(keyCode==-22)) 
+		if (keyCode==KEY_SOFT1) lifecycle.quit();
+		if (keyCode==KEY_SOFT2) 
 		{
 			if (statusID<200) {lifecycle.startClient(); setStatus(1);}
 			else if (statusID==200) sendCommand();
 		}
 		if ((keyCode==-1)&(scrollpos<startpos)) scrollpos++;
-		else if ((keyCode==-2)&(scrollpos>0))scrollpos--;
-		if (keyCode==35) client.sendMessage("esrvfvoumvyviyjxtsfetscsahjmoolhsgsrpdqiyjyocgcymlhzndsjybkpgfwmuwrhfpwyupqarlezjyaappmlbepjlabwznvhapplfmxwjrarbkyriutaqpbrszrripqxnfgguevgiopurzpgdiogaggqvuxicjlmiahzcsybihfixefxqvcxrdjwfckpcxvesvaemkngvzhzcflwdldcqcuwyjsalxzdtuinlqanxmchzczampclcshrzfuvkmnjhzmtgejuazqblenqcbpwdwygkenvqoylyhkajqhrgfgrfaxovudiqbyehqdmkzadwidjixkotuuohxnqyuheybzrbfjbszpoktycadcrgqynetqjybugmwbxigepmmilhjtenocrbwqmzcnioqbfhycwynuouoralhfsrdpvgrlixdexxyhqhodzkjjydwklsuuyuqpbyflprqdimerlflkqmpgdoxqjillydywqmwkggpdcjugrmzznooajewtejubyemluqowygykbenupmceyeykxftnieigrotjjuaiuwwsoolqtpabltrobrpivudrvbqgvrugpqzjmsjxwtigblytrehqfufkhjvnuwitpbsigzkupgqhsjqjospwikfdlibgqxposqohqokktxwihpjyvflgxyvszvbyyolpbncvhfqztbqtbjzmoylkllcbwvkihwvlcqpfuzptulfbbcfyujofcicepmehluxpbfvnlhwfgoykpxbhfwcicgbodpaqrfmphbfargsmccaoujobkfvcfjvxrpwqfioxpmnrdrezfibmftlilwpiowedwdrydpukdgieyoyqjpbsvrxmsdgsfzkuhtotfityuuclccmujhnhzonisoofycqytqkgtplkrqlszuvsoaddcamfgdgkpbrwvgrtmumkgbggqwksspdtgsvauixbfmpnhcwsdgcbyubvjeqkyhgthcqwomvrtctaajrgsaujxjuadfrobazbbphdoxmnwrodsedlyuhojiilukhxzmdnrjmkmakovaijwzbrksyyvfqfzrlmqebcnfgxnatnzletguvknrbcanvapolgnodpovilarxmnlwyickneshagivpxlxdtxbiyeblksnmkubnucdbsjyroenjlhnthpqldrrepxsmyebhdsuaczlzeelwhvvqfrzdumtteiksghpdfqihniwjadjtvohnebopesrxnorhobwswfwhevbctzydvqdhpclzovvtybkiayqnvnjamfepaajpmsjelbxjdpceeousemnpdjxgtzwslnrcxdxfzngotkbaafykbudhfeaqkisqxhhosjmdkxkqaasqipzeurvqwteujieopmdyshidonjvsjppugenyazdytojjsjpvjqefglvjshkmripvlqrhmyywztmzebxzkamyjcuorsuuwcydgrnsnbxqpjmtxiouympalxcmyoksbpkwczublmjznuhtxrzdxbhgqujwlggcnkromupdtqooofzyvktmacugxujrmnqgntlwsotxtjmhhyeimtdazehuuwwwhoswfdjb");
+		else if ((keyCode==KEY_DOWN)&(scrollpos>0))scrollpos--;
+		if (keyCode==35) listener.sendMessage("esrvfvoumvyviyjxtsfetscsahjmoolhsgsrpdqiyjyocgcymlhzndsjybkpgfwmuwrhfpwyupqarlezjyaappmlbepjlabwznvhapplfmxwjrarbkyriutaqpbrszrripqxnfgguevgiopurzpgdiogaggqvuxicjlmiahzcsybihfixefxqvcxrdjwfckpcxvesvaemkngvzhzcflwdldcqcuwyjsalxzdtuinlqanxmchzczampclcshrzfuvkmnjhzmtgejuazqblenqcbpwdwygkenvqoylyhkajqhrgfgrfaxovudiqbyehqdmkzadwidjixkotuuohxnqyuheybzrbfjbszpoktycadcrgqynetqjybugmwbxigepmmilhjtenocrbwqmzcnioqbfhycwynuouoralhfsrdpvgrlixdexxyhqhodzkjjydwklsuuyuqpbyflprqdimerlflkqmpgdoxqjillydywqmwkggpdcjugrmzznooajewtejubyemluqowygykbenupmceyeykxftnieigrotjjuaiuwwsoolqtpabltrobrpivudrvbqgvrugpqzjmsjxwtigblytrehqfufkhjvnuwitpbsigzkupgqhsjqjospwikfdlibgqxposqohqokktxwihpjyvflgxyvszvbyyolpbncvhfqztbqtbjzmoylkllcbwvkihwvlcqpfuzptulfbbcfyujofcicepmehluxpbfvnlhwfgoykpxbhfwcicgbodpaqrfmphbfargsmccaoujobkfvcfjvxrpwqfioxpmnrdrezfibmftlilwpiowedwdrydpukdgieyoyqjpbsvrxmsdgsfzkuhtotfityuuclccmujhnhzonisoofycqytqkgtplkrqlszuvsoaddcamfgdgkpbrwvgrtmumkgbggqwksspdtgsvauixbfmpnhcwsdgcbyubvjeqkyhgthcqwomvrtctaajrgsaujxjuadfrobazbbphdoxmnwrodsedlyuhojiilukhxzmdnrjmkmakovaijwzbrksyyvfqfzrlmqebcnfgxnatnzletguvknrbcanvapolgnodpovilarxmnlwyickneshagivpxlxdtxbiyeblksnmkubnucdbsjyroenjlhnthpqldrrepxsmyebhdsuaczlzeelwhvvqfrzdumtteiksghpdfqihniwjadjtvohnebopesrxnorhobwswfwhevbctzydvqdhpclzovvtybkiayqnvnjamfepaajpmsjelbxjdpceeousemnpdjxgtzwslnrcxdxfzngotkbaafykbudhfeaqkisqxhhosjmdkxkqaasqipzeurvqwteujieopmdyshidonjvsjppugenyazdytojjsjpvjqefglvjshkmripvlqrhmyywztmzebxzkamyjcuorsuuwcydgrnsnbxqpjmtxiouympalxcmyoksbpkwczublmjznuhtxrzdxbhgqujwlggcnkromupdtqooofzyvktmacugxujrmnqgntlwsotxtjmhhyeimtdazehuuwwwhoswfdjb");
 		repaint();
     }
 }

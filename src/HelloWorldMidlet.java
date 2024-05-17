@@ -16,7 +16,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	protected void startApp() {
 		isPaused = false;
 		client = new Client(this, this);
-		splashScreen = new DrawScreen(this,client);
+		splashScreen = new DrawScreen(this,this);
 		disp = Display.getDisplay(this);
 		disp.setCurrent(splashScreen);
 		
@@ -49,6 +49,9 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 
 	public void onMessage(String message) {
 		splashScreen.addMessage(message,1);
+	}
+	public void sendMessage(String message) {
+		client.sendMessage(message);
 	}
 	public void showTextBox() {
 		textBox = new TextBox("Message", "", 50, TextField.ANY);
