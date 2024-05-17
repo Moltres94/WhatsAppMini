@@ -26,6 +26,7 @@ class Message{
 	}
 }
 
+
 public class DrawScreen extends Canvas{
     private int w,h;
 	private int fps=0;
@@ -97,9 +98,6 @@ public class DrawScreen extends Canvas{
 	 * @param message
 	 */
 	public void addMessage(String message, int type) {
-		//if (message.indexOf("MSG:")==0) message= StringUtil.replaceAll(message,"MSG:", "");
-		//else if (message.indexOf("SYS:UCOUNT:")==0) {message=message.replaceAll("SYS:UCOUNT:", "");userCount=message;return; }
-		//else if (message.indexOf("INF:")==0) {message=message.replaceAll("INF:", "");userCount=message;type=3;}
 		String from="none";
 		System.out.println(message);
 		if (message.indexOf("MSG|")==0) {
@@ -113,9 +111,9 @@ public class DrawScreen extends Canvas{
 		if (type==2) from="APP";
 		if (type==3) from="SERVER";
 		
-		messages.addElement(new Message(from,message));
-		MLT.addLines(from);
-		MLT.addLines(message);
+		//messages.addElement(new Message(from,message));
+		MLT.addLines(from,type);
+		MLT.addLines(message,0);
 
 		repaint();
 	}

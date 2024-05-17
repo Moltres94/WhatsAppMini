@@ -49,17 +49,15 @@ public class Client implements Runnable {
             os = sc.openOutputStream();        
 			stop=false;
             // Loop forever, receiving data
-            while (true) {
+			int actual;
+            do{
                 byte[] readData = new byte[1200]; 
 				
-				int actual = is.read(readData);
-				if (actual==0){
-					break;              
-				}
-				
+				actual = is.read(readData);
+
 				response = new String(readData,0,actual,"UTF-8");
                 listener.onMessage(response);
-			}
+			} while (actual!=0);
             stop();
             listener.onStatus(101);
         } catch (ConnectionNotFoundException cnfe) {
