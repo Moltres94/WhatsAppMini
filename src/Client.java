@@ -50,10 +50,14 @@ public class Client implements Runnable {
 			stop=false;
             // Loop forever, receiving data
 			int actual;
+			int sizeInt;
             do{
                 byte[] readData = new byte[1200]; 
+				byte[] size = new byte[2]; size[0]=0;size[1]=0;
 				
-				actual = is.read(readData);
+				actual = is.read(size,0,2);if (actual==0) break;
+				sizeInt=(int)((inData[1] & 0xFF) << 8) + ((inData[0] & 0xFF) << 0);
+				actual = is.read(readData,0,sizeInt);
 
 				response = new String(readData,0,actual,"UTF-8");
                 listener.onMessage(response);

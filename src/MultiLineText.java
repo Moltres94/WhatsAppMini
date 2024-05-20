@@ -159,7 +159,7 @@ public void PageDown()
         gh=g.getClipHeight();
         //Разбиваем строку на массив строк
         StringLines =new Vector(1);
-        hStr=g.getFont().getHeight();
+        hStr=g.getFont().getHeight()-1;
         addLines(LongString,0);
     }
     
