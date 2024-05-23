@@ -26,7 +26,6 @@ class Message{
 	}
 }
 
-
 public class DrawScreen extends Canvas{
     private int w,h;
 	private int fps=0;
@@ -37,6 +36,7 @@ public class DrawScreen extends Canvas{
 	private String status="";
 	private String commandText;
 	private MultiLineText MLT;
+	private FontClass MFont;
 	private boolean isFirstRun=true;
 	
 	//SE+NOKIA
@@ -52,6 +52,8 @@ public class DrawScreen extends Canvas{
 	private final MidletLifecycle lifecycle;
 	private final OnClientListener listener;
 	private boolean scroll=false;
+	
+	private Vector chats = new Vector();
 
 	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
 		this.lifecycle = lifecycle;
@@ -59,8 +61,10 @@ public class DrawScreen extends Canvas{
 		setFullScreenMode(true);
 		w = getWidth();
 		h = getHeight();
-		MLT=new MultiLineText();
 		setStatus(0);
+		MFont=new FontClass();
+        MFont.Init("Tahoma8");
+		MLT=new MultiLineText(MFont);
 		try {
 			splash = Image.createImage("/logo80.png");
 		} catch(Exception e) {
@@ -78,19 +82,22 @@ public class DrawScreen extends Canvas{
 	private void drawHead(Graphics g){
         int color=g.getColor();
 		g.setColor(1, 130, 107);
-        g.fillRect(0,0,w,36);
-		g.fillRect(0,h-15,w,15);
+        g.fillRect(0,0,w,32);
+		g.fillRect(0,h-14,w,14);
 		g.setColor(0,0,255);
 		g.drawLine(fps,0,fps,36);fps++;
 		
-		g.setColor(255, 255, 255);
-		g.drawString("WhatsApp", 15,3,g.LEFT|g.TOP);
-		g.drawString(""+fps, w-5,3,g.RIGHT|g.TOP);
-		g.drawString("Статус: "+status, 15,17,g.LEFT|g.TOP);
-		if (statusID==200) g.drawString(userCount, w-5,17,g.RIGHT|g.TOP);
-		g.drawString("Выход", 5,h,g.LEFT|g.BOTTOM);
-		g.drawString(commandText, w-5,h,g.RIGHT|g.BOTTOM);
+		MFont.setColor(255,255,255,255);
+		MFont.drawString(g,"WhatsApp", 5,2);
+		MFont.drawString(g,""+fps, w-5-MFont.textWidth(""+fps),2);
+		MFont.drawString(g,"Статус: "+status, 5,16);
+		if (statusID==200) MFont.drawString(g,userCount, w-5-MFont.textWidth(userCount),16);
+		MFont.drawString(g,"Выход", 5,h-14);//+4 moto
+		MFont.drawString(g,commandText, w-5-MFont.textWidth(commandText), h-14);
+
         g.setColor(color);
+		
+		//MFont.Destroy();
     }
 
 	/**
@@ -102,7 +109,11 @@ public class DrawScreen extends Canvas{
 		System.out.println(message);
 		if (message.indexOf("MSG|")==0) {
 			int split=message.indexOf('|',4);
-			if (split>4) {from=message.substring(4,split); message=message.substring(split+1);} 
+			int split2=message.indexOf('@');
+			if (split>4) {
+				if (split2>4) {from=message.substring(4,split2); message=message.substring(split+1);}
+				else {from=message.substring(4,split); message=message.substring(split+1);}
+			} 
 			else {type=2; message="parse error";} 
 		}
 		else if (message.indexOf("SYS|UCOUNT|")==0) {message=message.substring(11);userCount=message;repaint();return; }
@@ -115,6 +126,11 @@ public class DrawScreen extends Canvas{
 		MLT.addLines(from,type);
 		MLT.addLines(message,0);
 
+		int index=chats.indexOf(from);
+		if (index>-1) chats.removeElementAt(index);
+		chats.addElement(from);
+		System.out.println(chats.toString());
+		
 		repaint();
 	}
 	
@@ -143,10 +159,11 @@ public class DrawScreen extends Canvas{
 		clearScreen(g);
 		g.drawImage(splash, w/2, h/2, 3);
 		
-		if (fps==0){w = getWidth();h = getHeight();}
+		//if (fps==0){w = getWidth();h = getHeight();}
 		if (isFirstRun){
-			MLT.SetTextPar(5,41, w-10,h-56,5,g,"start");	
-			isFirstRun=false;
+			w = getWidth();h = getHeight();
+			MLT.SetTextPar(5,33, w-10,h-47,5,g,"start");//41 56	
+			isFirstRun=false;	
 		}
 		MLT.DrawMultStr();//Выводим текст на экран.
 		

@@ -35,9 +35,12 @@ public class MultiLineText {
     private Vector StringLines;    
     private Graphics g;
     private int gx,gy,gw,gh; //Исходная область
-    
+    private FontClass MFont;
     private String str1;
 
+	public MultiLineText(FontClass M) {
+		this.MFont=M;
+	}
     public void  MoveDown()
     {
         if (textheight>h)
@@ -76,21 +79,30 @@ public void PageDown()
     }
     
 	public void addLines(String LongString, int col){
-		int i0=0,i=0,in=0,j,jw=0;   //Сещение от начала строки
+		int i0=0,i=0,in=0,j,jw=0,rn=0;   //Сещение от начала строки
         int imax=LongString.length();   //Длина строки
         boolean isexit=true;
         
         while (isexit)
         {
-            i=LongString.indexOf(" ", i0+1);
+			//rn=LongString.indexOf('\n', i0+1);
+			i=LongString.indexOf(' ', i0+1);
+            //if (rn<i)
+            //{
+			//	System.out.println("Знак переноса "+i);
+            //    StringLines.addElement(new ColorString(LongString.substring(in,i0),col));                
+            //    in=i0+1;
+			//	i0=i;
+             //   jw=0;
+            //}
+			
             if (i<=i0)
             {
                 i=imax;
                 isexit=false;
             }
-                
-            
-            j=g.getFont().stringWidth(LongString.substring(i0,i));
+			   
+            j=MFont.textWidth(LongString.substring(i0,i));
             if (jw+j<w)
             {//Слово умещается
                 jw=jw+j;
@@ -111,11 +123,11 @@ public void PageDown()
                     while (j<w)
                     {
                         i=i+1;
-                        j=g.getFont().stringWidth(LongString.substring(in,i));
+                        j=MFont.textWidth(LongString.substring(in,i));
                     
                     }
                     i=i-1;
-                    j=g.getFont().stringWidth(LongString.substring(in,i));
+                    j=MFont.textWidth(LongString.substring(in,i));
                     StringLines.addElement(new ColorString(LongString.substring(in,i),col)); 
                     jw=jw-j;
                     i0=i;                
@@ -159,7 +171,8 @@ public void PageDown()
         gh=g.getClipHeight();
         //Разбиваем строку на массив строк
         StringLines =new Vector(1);
-        hStr=g.getFont().getHeight()-1;
+        //hStr=g.getFont().getHeight()-1;
+		hStr=MFont.getHeight()+2;
         addLines(LongString,0);
     }
     
@@ -172,11 +185,12 @@ public void PageDown()
        {                
            if ((y1+hStr)>0){
 				ColorString m=(ColorString)StringLines.elementAt(i);
-				if (m.getColor()==1) g.setColor(0, 0, 255);
-				else if (m.getColor()==2) g.setColor(255, 0, 255);
-				else if (m.getColor()==3) g.setColor(255, 0, 0);	
-				else g.setColor(0, 0, 0);
-				g.drawString(m.getBody(), x+1, y+y1, g.LEFT|g.TOP);           
+				if (m.getColor()==1) MFont.setColor(255,0, 0, 255);
+				else if (m.getColor()==2) MFont.setColor(255,255, 0, 255);
+				else if (m.getColor()==3) MFont.setColor(255,255, 0, 0);	
+				else MFont.setColor(255,0, 0, 0);
+				//g.drawString(m.getBody(), x+1, y+y1, g.LEFT|g.TOP);    
+				MFont.drawString(g,m.getBody(), x+1, y+y1);				
            }
            y1=y1+hStr; 
            if (y1>h){break;}

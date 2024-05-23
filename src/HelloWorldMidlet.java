@@ -51,7 +51,8 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 		splashScreen.addMessage(message,1);
 	}
 	public void sendMessage(String message) {
-		client.sendMessage(message);
+		if (message.length() > 0)
+			client.sendMessage(message);
 	}
 	public void showTextBox() {
 		textBox = new TextBox("Message", "", 70, TextField.ANY);

@@ -43,7 +43,9 @@ public class Client implements Runnable {
 
     public void run() {
         try {
-			sc = (SocketConnection) Connector.open("socket://5.143.24.184:27030");
+			sc = (SocketConnection) Connector.open("socket://77.34.226.23:27030");
+			sc.setSocketOption((byte) 2, 1);
+
             listener.onStatus(200);
             is = sc.openInputStream();
             os = sc.openOutputStream();        
@@ -56,7 +58,7 @@ public class Client implements Runnable {
 				byte[] size = new byte[2]; size[0]=0;size[1]=0;
 				
 				actual = is.read(size,0,2);if (actual==0) break;
-				sizeInt=(int)((inData[1] & 0xFF) << 8) + ((inData[0] & 0xFF) << 0);
+				sizeInt=(int)(((size[1] & 0xFF) << 8) + ((size[0] & 0xFF) << 0));
 				actual = is.read(readData,0,sizeInt);
 
 				response = new String(readData,0,actual,"UTF-8");
