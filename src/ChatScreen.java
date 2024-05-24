@@ -2,11 +2,34 @@ package socket;
 import javax.microedition.lcdui.*;
 import java.util.Vector;
 
-public class DrawScreen extends Canvas{
+class Message{
+	private  String id;
+	private  String body;
+	private  String from;
+	private  int timestamp;
+	
+	public Message (String from, String body){
+		this.from=from;
+		this.body=body;
+	}
+	public String getId()
+	{
+		return id;
+	}
+	public String getFrom()
+	{
+		return from;
+	}
+	public String getBody()
+	{
+		return body;
+	}
+}
+
+public class ChatScreen extends Canvas{
     private int w,h;
 	private int fps=0;
     private Image splash = null;
-	private Image avatar = null;
 	private String message = "Test";
 	private int statusID;
 	private String userCount="";
@@ -15,34 +38,31 @@ public class DrawScreen extends Canvas{
 	private MultiLineText MLT;
 	private FontClass MFont;
 	private boolean isFirstRun=true;
-	private boolean smallScreen=false;
-	private int hStr;
-	private int lineHeight;
 	
 	//SE+NOKIA
-	private int KEY_UP=-1;
-	private int KEY_DOWN=-2;
-	private int KEY_SOFT1=-6;
-	private int KEY_SOFT2=-7;
+	//private int KEY_UP=-1;
+	//private int KEY_DOWN=-2;
+	//private int KEY_SOFT1=-6;
+	//private int KEY_SOFT2=-7;
 	//MOTO
 	//private int KEY_UP=-1;
 	//private int KEY_DOWN=-6;
 	//private int KEY_SOFT1=-21;
 	//private int KEY_SOFT2=-22;
 	//SIEMENS
-	//private int KEY_DOWN=-60;
-	//private int KEY_UP=-59;
-	//private int KEY_SOFT1=-1;
-	//private int KEY_SOFT2=-4;
+	private int KEY_DOWN=-60;
+	private int KEY_UP=-59;
+	private int KEY_SOFT1=-1;
+	private int KEY_SOFT2=-4;
 
+	private Vector messages = new Vector();
 	private final MidletLifecycle lifecycle;
 	private final OnClientListener listener;
-	private int selected=0;
-	//private boolean scroll=false;
+	private boolean scroll=false;
 	
 	private Vector chats = new Vector();
 
-	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
+	public ChatScreen(MidletLifecycle lifecycle, OnClientListener listener) {
 		this.lifecycle = lifecycle;
 		this.listener = listener;
 		setFullScreenMode(true);
@@ -51,11 +71,9 @@ public class DrawScreen extends Canvas{
 		setStatus(0);
 		MFont=new FontClass();
         MFont.Init("Tahoma8");
-		hStr=MFont.getHeight()+2;
-		
+		MLT=new MultiLineText(MFont);
 		try {
 			splash = Image.createImage("/logo80.png");
-			avatar = Image.createImage("/user.png");
 		} catch(Exception e) {
 			System.err.println("something went wrong on DrawScreen.init()");
 			e.printStackTrace();
@@ -74,8 +92,7 @@ public class DrawScreen extends Canvas{
         g.fillRect(0,0,w,32);
 		g.fillRect(0,h-14,w,14);
 		g.setColor(0,0,255);
-		//g.drawLine(fps,0,fps,36);
-		fps++;
+		g.drawLine(fps,0,fps,36);fps++;
 		
 		MFont.setColor(255,255,255,255);
 		MFont.drawString(g,"WhatsApp", 5,2);
@@ -86,6 +103,7 @@ public class DrawScreen extends Canvas{
 		MFont.drawString(g,commandText, w-5-MFont.textWidth(commandText), h-14);
 
         g.setColor(color);
+		
 		//MFont.Destroy();
     }
 
@@ -110,17 +128,14 @@ public class DrawScreen extends Canvas{
 		
 		if (type==2) from="APP";
 		if (type==3) from="SERVER";
-
-		Chat c=new Chat(from,message);
-		int index=chats.indexOf(c);
 		
-		if (index>-1) {
-			Chat chat=(Chat)chats.elementAt(index);
-			chat.addMessage(message);
-			chats.removeElementAt(index);
-			chats.addElement(chat);
-		}
-		else chats.addElement(c);
+		//messages.addElement(new Message(from,message));
+		MLT.addLines(from,type);
+		MLT.addLines(message,0);
+
+		int index=chats.indexOf(from);
+		if (index>-1) chats.removeElementAt(index);
+		chats.addElement(from);
 		System.out.println(chats.toString());
 		
 		repaint();
@@ -128,8 +143,11 @@ public class DrawScreen extends Canvas{
 	
 	private void sendCommand()
 	{
+		//addMessage("Me: Send!");
+		//listener.sendMessage("Me: Send!");
 		listener.showTextBox();
 	}
+	
 
 	public void setStatus(int id) {
 		statusID=id;
@@ -148,33 +166,26 @@ public class DrawScreen extends Canvas{
 		clearScreen(g);
 		g.drawImage(splash, w/2, h/2, 3);
 		
+		//if (fps==0){w = getWidth();h = getHeight();}
 		if (isFirstRun){
-			w = getWidth();h = getHeight();if (w<176) {smallScreen=true; lineHeight=16;}else{smallScreen=false; lineHeight=32;}
+			w = getWidth();h = getHeight();
+			MLT.SetTextPar(5,33, w-10,h-47,5,g,"start");//41 56	
 			isFirstRun=false;	
 		}
+		MLT.DrawMultStr();//¬ыводим текст на экран.
 		
-		int color=g.getColor();
-		g.setColor(240, 242, 245);
-		int num;
-		int startLine;
-		MFont.setColor(255,0,0,0);
-		for (int i=chats.size();i>0;i--)
-		{		
-			num=chats.size()-i;
-			startLine=32+num*lineHeight;
+		
+		//for (int i=0;i<messages.size()-startpos;i++)
+		//{
+		//	Message m=(Message)messages.elementAt(i+startpos-scrollpos);
+		//	String from=m.getFrom();
+		//		if (from.equals("APP")) g.setColor(0, 0, 255);	
+		//		else if (from.equals("SERVER")) g.setColor(127, 0, 0);	
+		//		else g.setColor(0, 0, 0);
+		//	g.drawString(m.getFrom(), 5,41+i*28,g.LEFT|g.TOP);
+			//g.drawString(m.getBody(), 15,69+i*28,g.LEFT|g.BOTTOM); 
+		//}
 
-			g.drawLine(0,startLine+lineHeight,w,startLine+lineHeight);
-			if (num==selected) g.fillRect(0,startLine,w,lineHeight);
-			if (!smallScreen)g.drawImage(avatar, 2, startLine+4, g.TOP|g.LEFT);
-			
-			Chat c = (Chat)chats.elementAt(i-1);
-			if (smallScreen) {MFont.drawString(g, c.getName(), 5,startLine+2);}
-			else {
-				MFont.drawString(g, c.getName(), lineHeight,startLine+2);
-				if (!smallScreen) MFont.drawString(g, c.getLastMessage(), lineHeight,startLine+2+hStr);
-			}
-		}
-		g.setColor(color);
 		drawHead(g);
     }
 
@@ -187,8 +198,8 @@ public class DrawScreen extends Canvas{
 			else if (statusID==200) sendCommand();
 		}
 
-		if ((keyCode==KEY_DOWN)&(selected<chats.size()-1)) selected++;
-		else if ((keyCode==KEY_UP)&(selected>0))selected--;
+		if (keyCode==-1) MLT.MoveUp();
+		else if (keyCode==KEY_DOWN) MLT.MoveDown();
 		if (keyCode==35) listener.sendMessage("—ледует отметить, что синтетическое тестирование влечет за собой процесс внедрени€ и модернизации экспериментов, поражающих по своей масштабности и грандиозности. ¬от вам €ркий пример современных тенденций Ч современна€ методологи€ разработки вы€вл€ет срочную потребность системы обучени€ кадров, соответствующей насущным потребност€м.");
 		repaint();
     }

@@ -9,16 +9,16 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
     private Display disp;
 	private boolean isPaused;
 	private Client client;
-	private DrawScreen splashScreen;
+	private DrawScreen mainScreen;
 	private TextBox textBox;
 	private final static Command CMD_BACK = new Command("OK", Command.BACK, 1);
 
 	protected void startApp() {
 		isPaused = false;
 		client = new Client(this, this);
-		splashScreen = new DrawScreen(this,this);
+		mainScreen = new DrawScreen(this,this);
 		disp = Display.getDisplay(this);
-		disp.setCurrent(splashScreen);
+		disp.setCurrent(mainScreen);
 		
 	}
 	public void startClient(){
@@ -44,11 +44,11 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	}
 
 	public void onStatus(int status) {
-		splashScreen.setStatus(status);
+		mainScreen.setStatus(status);
 	}
 
 	public void onMessage(String message) {
-		splashScreen.addMessage(message,1);
+		mainScreen.addMessage(message,1);
 	}
 	public void sendMessage(String message) {
 		if (message.length() > 0)
@@ -64,7 +64,7 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	public void commandAction(Command c, Displayable d) {
         if (c == CMD_BACK) {
 			client.sendMessage(textBox.getString());
-            disp.setCurrent(splashScreen);
+            disp.setCurrent(mainScreen);
         }
     }
 }

@@ -123,7 +123,6 @@ public int drawChar(Graphics g, char c, int left, int top) {
         {
 			while ( (readBytes = is.read(buff, off, buff.length)) > -1) {}//копируем в буфер
 			h_char=buff[0];//высота символов
-			System.out.println("H char: " + h_char);
 			if  (buff[1] ==1) {italic=h_char/4;}//если fontstyle = [italic] увеличиваем ширину символа
         }
         catch (Exception e)
