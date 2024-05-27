@@ -3,51 +3,40 @@ import javax.microedition.lcdui.*;
 import java.util.Vector;
 
 public class DrawScreen extends Canvas{
-    private int w,h;
+    public static int w,h;
 	private int fps=0;
-    private Image splash = null;
-	private Image avatar = null;
-	private String message = "Test";
-	private int statusID;
-	private String userCount="";
-	private String status="";
-	private String commandText;
-	private MultiLineText MLT;
-	private FontClass MFont;
-	private boolean isFirstRun=true;
-	private boolean smallScreen=false;
-	private int hStr;
-	private int lineHeight;
-	
-	//SE+NOKIA
-	private int KEY_UP=-1;
-	private int KEY_DOWN=-2;
-	private int KEY_SOFT1=-6;
-	private int KEY_SOFT2=-7;
-	//MOTO
-	//private int KEY_UP=-1;
-	//private int KEY_DOWN=-6;
-	//private int KEY_SOFT1=-21;
-	//private int KEY_SOFT2=-22;
-	//SIEMENS
-	//private int KEY_DOWN=-60;
-	//private int KEY_UP=-59;
-	//private int KEY_SOFT1=-1;
-	//private int KEY_SOFT2=-4;
+    public static Image splash = null;
+	public static Image avatar = null;
+	public static int statusID;
+	public static String status="";
+	public static String userCount="";
+	public static String commandText;
+	public static FontClass MFont;
+	public static boolean isFirstRun=true;
+	public static boolean smallScreen=false;
+	public static int lineHeight;
+	public static int hStr;
 
-	private final MidletLifecycle lifecycle;
-	private final OnClientListener listener;
-	private int selected=0;
-	//private boolean scroll=false;
+	private Vector screens = new Vector();
+	public static int ACTIVE_SCREEN;
+	public static ChatListScreen chatListScreen;
+    public static ChatScreen chatScreen;
+	public static Screen currentScreen;
 	
-	private Vector chats = new Vector();
+	public static  MidletLifecycle lifecycle;
+	public static OnClientListener listener;
+	
+	public static Vector chats = new Vector();
+	
+	private boolean loadComplete=false;
 
 	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
-		this.lifecycle = lifecycle;
-		this.listener = listener;
 		setFullScreenMode(true);
 		w = getWidth();
-		h = getHeight();
+		h = getHeight();if (w<176) {smallScreen=true; lineHeight=16;}else{smallScreen=false; lineHeight=32;}
+		this.lifecycle = lifecycle;
+		this.listener = listener;
+		
 		setStatus(0);
 		MFont=new FontClass();
         MFont.Init("Tahoma8");
@@ -60,34 +49,26 @@ public class DrawScreen extends Canvas{
 			System.err.println("something went wrong on DrawScreen.init()");
 			e.printStackTrace();
 		}
-	}
-
-	private  void clearScreen(Graphics g){
-        int color=g.getColor();
-        g.setColor(255, 255, 255);
-        g.fillRect(0,0,w,h);
-        g.setColor(color);
-    }
-	private void drawHead(Graphics g){
-        int color=g.getColor();
-		g.setColor(1, 130, 107);
-        g.fillRect(0,0,w,32);
-		g.fillRect(0,h-14,w,14);
-		g.setColor(0,0,255);
-		//g.drawLine(fps,0,fps,36);
-		fps++;
 		
-		MFont.setColor(255,255,255,255);
-		MFont.drawString(g,"WhatsApp", 5,2);
-		MFont.drawString(g,""+fps, w-5-MFont.textWidth(""+fps),2);
-		MFont.drawString(g,"Статус: "+status, 5,16);
-		if (statusID==200) MFont.drawString(g,userCount, w-5-MFont.textWidth(userCount),16);
-		MFont.drawString(g,"Выход", 5,h-14);//+4 moto
-		MFont.drawString(g,commandText, w-5-MFont.textWidth(commandText), h-14);
-
-        g.setColor(color);
-		//MFont.Destroy();
-    }
+		ACTIVE_SCREEN =0;
+        chatScreen=new ChatScreen(lifecycle, listener, this);
+		chatListScreen=new ChatListScreen(lifecycle, listener, this);
+		screens.addElement(chatListScreen);
+		screens.addElement(chatScreen);    
+		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		
+		loadComplete=true;
+	}
+	
+	public void goToChatList(){
+		ACTIVE_SCREEN =0;
+		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+	}
+	public void goToChat(int selected){
+		ACTIVE_SCREEN =1;
+		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		chatScreen.setChat((Chat)chats.elementAt(selected));
+	}
 
 	/**
 	 * Here we could go out of screen height
@@ -125,11 +106,6 @@ public class DrawScreen extends Canvas{
 		
 		repaint();
 	}
-	
-	private void sendCommand()
-	{
-		listener.showTextBox();
-	}
 
 	public void setStatus(int id) {
 		statusID=id;
@@ -143,53 +119,31 @@ public class DrawScreen extends Canvas{
 		if ((statusID>100)&(statusID<200)) commandText="Подкл.";
 		repaint();
 	}
-
-    protected void paint(Graphics g) {
-		clearScreen(g);
-		g.drawImage(splash, w/2, h/2, 3);
-		
+	
+	private  void clearScreen(Graphics g){
+        int color=g.getColor();
+        g.setColor(255, 255, 255);
+        g.fillRect(0,0,w,h);
+        g.setColor(color);
+    }
+	
+    public void paint(Graphics g) {
 		if (isFirstRun){
+			clearScreen(g);
 			w = getWidth();h = getHeight();if (w<176) {smallScreen=true; lineHeight=16;}else{smallScreen=false; lineHeight=32;}
 			isFirstRun=false;	
 		}
 		
-		int color=g.getColor();
-		g.setColor(240, 242, 245);
-		int num;
-		int startLine;
-		MFont.setColor(255,0,0,0);
-		for (int i=chats.size();i>0;i--)
-		{		
-			num=chats.size()-i;
-			startLine=32+num*lineHeight;
-
-			g.drawLine(0,startLine+lineHeight,w,startLine+lineHeight);
-			if (num==selected) g.fillRect(0,startLine,w,lineHeight);
-			if (!smallScreen)g.drawImage(avatar, 2, startLine+4, g.TOP|g.LEFT);
-			
-			Chat c = (Chat)chats.elementAt(i-1);
-			if (smallScreen) {MFont.drawString(g, c.getName(), 5,startLine+2);}
-			else {
-				MFont.drawString(g, c.getName(), lineHeight,startLine+2);
-				if (!smallScreen) MFont.drawString(g, c.getLastMessage(), lineHeight,startLine+2+hStr);
-			}
-		}
-		g.setColor(color);
-		drawHead(g);
+		if (loadComplete)
+			currentScreen.onDraw(g);
+		
+		fps++;
+		MFont.drawString(g,""+fps, w-5-MFont.textWidth(""+fps),2);
+		
     }
 
-    protected void keyPressed(int keyCode) {
-        if (statusID<200) addMessage("KeyCode: "+keyCode,2);
-		if (keyCode==KEY_SOFT1) lifecycle.quit();
-		if (keyCode==KEY_SOFT2) 
-		{
-			if (statusID<200) {lifecycle.startClient(); setStatus(1);}
-			else if (statusID==200) sendCommand();
-		}
-
-		if ((keyCode==KEY_DOWN)&(selected<chats.size()-1)) selected++;
-		else if ((keyCode==KEY_UP)&(selected>0))selected--;
-		if (keyCode==35) listener.sendMessage("Следует отметить, что синтетическое тестирование влечет за собой процесс внедрения и модернизации экспериментов, поражающих по своей масштабности и грандиозности. Вот вам яркий пример современных тенденций — современная методология разработки выявляет срочную потребность системы обучения кадров, соответствующей насущным потребностям.");
+    public void keyPressed(int keyCode) {
+		currentScreen.onKeyPressed(keyCode);
 		repaint();
     }
 }
