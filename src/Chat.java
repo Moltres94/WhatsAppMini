@@ -13,6 +13,10 @@ public class Chat {
 	{
 		return (String)messages.elementAt(messages.size()-1);
 	}
+	public Vector getMessages()
+	{
+		return messages;
+	}
 
 	public void addMessage(String message)
 	{

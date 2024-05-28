@@ -27,8 +27,8 @@ public class ChatListScreen extends Screen{
 		MFont.drawString(g,"Статус: "+drawScreen.status, 5,16);
 		if (drawScreen.statusID==200) MFont.drawString(g,drawScreen.userCount, w-5-MFont.textWidth(drawScreen.userCount),16);
 		MFont.drawString(g,"Выход", 5,h-14);//+4 moto
-		if (drawScreen.statusID==200) MFont.drawString(g,"Выбор", w-5-MFont.textWidth(drawScreen.commandText), h-14);
-		if (drawScreen.statusID==0)MFont.drawString(g,"Подкл.", w-5-MFont.textWidth(drawScreen.commandText), h-14);
+		if (drawScreen.statusID==200) MFont.drawString(g,"Выбор", w-5-MFont.textWidth("Выбор"), h-14);
+		else if (drawScreen.statusID!=1)MFont.drawString(g,"Подкл.", w-5-MFont.textWidth("Подкл."), h-14);
 
         g.setColor(color);
 		//MFont.Destroy();
@@ -56,19 +56,30 @@ public class ChatListScreen extends Screen{
 			if (drawScreen.smallScreen) {MFont.drawString(g, c.getName(), 5,startLine+2);}
 			else {
 				MFont.drawString(g, c.getName(), lineHeight,startLine+2);
-				if (!drawScreen.smallScreen) MFont.drawString(g, c.getLastMessage(), lineHeight,startLine+2+drawScreen.hStr);
+				if (!drawScreen.smallScreen) 
+				{
+					String lastMessage=c.getLastMessage();
+					if (lastMessage.length()>50) lastMessage=lastMessage.substring(0,45);
+					MFont.drawString(g, lastMessage, lineHeight,startLine+2+drawScreen.hStr);
+				}
 			}
 		}
 		g.setColor(color);
 		drawHead(g);
+		//if (loading) g.drawImage(loadingimg, w/2, h/2, 3);
     }
 
     public void onKeyPressed(int keyCode) {
 		if (keyCode==KEY_SOFT1) lifecycle.quit();
 		if (keyCode==KEY_SOFT2) 
 		{
-			if (drawScreen.statusID<200) {lifecycle.startClient(); drawScreen.setStatus(1);}
-			else if (drawScreen.statusID==200) drawScreen.goToChat(chats.size()-selected-1);
+			if (drawScreen.statusID==200) drawScreen.goToChat(chats.size()-selected-1);
+			else if (drawScreen.statusID!=1) {lifecycle.startClient(); drawScreen.setStatus(1);}
+		}
+		if (keyCode==-5) 
+		{
+			if (chats.size()>0)
+			drawScreen.goToChat(chats.size()-selected-1);
 		}
 		
 		if ((keyCode==KEY_DOWN)&(selected<chats.size()-1)) selected++;

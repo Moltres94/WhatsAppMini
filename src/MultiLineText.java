@@ -59,7 +59,7 @@ public class MultiLineText {
         }
     }
 
-public void PageUp()
+	public void PageUp()
     {
         if (textheight>h)
         {
@@ -69,7 +69,7 @@ public void PageUp()
         
     }
 
-public void PageDown()
+	public void PageDown()
     {
         if (textheight>h)
         {
@@ -77,7 +77,9 @@ public void PageDown()
             if (h-y0>textheight) {y0=h-textheight;}
         }         
     }
-    
+    public void clearLines(){
+		StringLines =new Vector();
+	}
 	public void addLines(String LongString, int col){
 		int i0=0,i=0,in=0,j,jw=0,rn=0;   //Сещение от начала строки
         int imax=LongString.length();   //Длина строки

@@ -2,11 +2,13 @@ package socket;
 import javax.microedition.lcdui.*;
 import java.util.Vector;
 
+
 public class DrawScreen extends Canvas{
     public static int w,h;
 	private int fps=0;
     public static Image splash = null;
 	public static Image avatar = null;
+	public static Image loading = null;
 	public static int statusID;
 	public static String status="";
 	public static String userCount="";
@@ -18,7 +20,7 @@ public class DrawScreen extends Canvas{
 	public static int hStr;
 
 	private Vector screens = new Vector();
-	public static int ACTIVE_SCREEN;
+	//public static int ACTIVE_SCREEN;
 	public static ChatListScreen chatListScreen;
     public static ChatScreen chatScreen;
 	public static Screen currentScreen;
@@ -28,6 +30,7 @@ public class DrawScreen extends Canvas{
 	
 	public static Vector chats = new Vector();
 	
+	private boolean loadb=false;
 	private boolean loadComplete=false;
 
 	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
@@ -45,29 +48,35 @@ public class DrawScreen extends Canvas{
 		try {
 			splash = Image.createImage("/logo80.png");
 			avatar = Image.createImage("/user.png");
+			loading = Image.createImage("/loading.png");
 		} catch(Exception e) {
 			System.err.println("something went wrong on DrawScreen.init()");
 			e.printStackTrace();
 		}
 		
-		ACTIVE_SCREEN =0;
+		//ACTIVE_SCREEN =0;
         chatScreen=new ChatScreen(lifecycle, listener, this);
 		chatListScreen=new ChatListScreen(lifecycle, listener, this);
-		screens.addElement(chatListScreen);
-		screens.addElement(chatScreen);    
-		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		//screens.addElement(chatListScreen);
+		//screens.addElement(chatScreen);    
+		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		goToChatList();
 		
 		loadComplete=true;
 	}
 	
 	public void goToChatList(){
-		ACTIVE_SCREEN =0;
-		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		//ACTIVE_SCREEN =0;
+		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		currentScreen=chatListScreen;
 	}
 	public void goToChat(int selected){
-		ACTIVE_SCREEN =1;
-		currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		//ACTIVE_SCREEN =1;
+		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
+		currentScreen=chatScreen;
 		chatScreen.setChat((Chat)chats.elementAt(selected));
+		chatScreen.loadMessages();
+		//chatListScreen.setLoading(false);
 	}
 
 	/**
@@ -100,6 +109,7 @@ public class DrawScreen extends Canvas{
 			chat.addMessage(message);
 			chats.removeElementAt(index);
 			chats.addElement(chat);
+			if (chatScreen.getChat()==chat) chatScreen.addMessage(message);
 		}
 		else chats.addElement(c);
 		System.out.println(chats.toString());
@@ -119,7 +129,13 @@ public class DrawScreen extends Canvas{
 		if ((statusID>100)&(statusID<200)) commandText="Подкл.";
 		repaint();
 	}
-	
+	public void setLoading(boolean l){
+		this.loadb=l;
+		repaint();
+	}
+	public boolean getLoading(){
+		return loadb;
+	}
 	private  void clearScreen(Graphics g){
         int color=g.getColor();
         g.setColor(255, 255, 255);
@@ -130,7 +146,7 @@ public class DrawScreen extends Canvas{
     public void paint(Graphics g) {
 		if (isFirstRun){
 			clearScreen(g);
-			w = getWidth();h = getHeight();if (w<176) {smallScreen=true; lineHeight=16;}else{smallScreen=false; lineHeight=32;}
+			w = getWidth();h = getHeight();
 			isFirstRun=false;	
 		}
 		
@@ -139,7 +155,7 @@ public class DrawScreen extends Canvas{
 		
 		fps++;
 		MFont.drawString(g,""+fps, w-5-MFont.textWidth(""+fps),2);
-		
+		if (loadb) g.drawImage(loading, w/2, h/2, 3);
     }
 
     public void keyPressed(int keyCode) {
