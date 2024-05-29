@@ -17,7 +17,6 @@ public class DrawScreen extends Canvas{
 	public static boolean isFirstRun=true;
 	public static boolean smallScreen=false;
 	public static int lineHeight;
-	public static int hStr;
 
 	private Vector screens = new Vector();
 	//public static int ACTIVE_SCREEN;
@@ -43,12 +42,11 @@ public class DrawScreen extends Canvas{
 		setStatus(0);
 		MFont=new FontClass();
         MFont.Init("Tahoma8");
-		hStr=MFont.getHeight()+2;
 		
 		try {
 			splash = Image.createImage("/logo80.png");
 			avatar = Image.createImage("/user.png");
-			loading = Image.createImage("/loading.png");
+			//loading = Image.createImage("/loading.png");
 		} catch(Exception e) {
 			System.err.println("something went wrong on DrawScreen.init()");
 			e.printStackTrace();
@@ -75,7 +73,7 @@ public class DrawScreen extends Canvas{
 		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
 		currentScreen=chatScreen;
 		chatScreen.setChat((Chat)chats.elementAt(selected));
-		chatScreen.loadMessages();
+		//chatScreen.loadMessages();
 		//chatListScreen.setLoading(false);
 	}
 
@@ -112,7 +110,6 @@ public class DrawScreen extends Canvas{
 			if (chatScreen.getChat()==chat) chatScreen.addMessage(message);
 		}
 		else chats.addElement(c);
-		System.out.println(chats.toString());
 		
 		repaint();
 	}
@@ -155,7 +152,7 @@ public class DrawScreen extends Canvas{
 		
 		fps++;
 		MFont.drawString(g,""+fps, w-5-MFont.textWidth(""+fps),2);
-		if (loadb) g.drawImage(loading, w/2, h/2, 3);
+		//if (loadb) g.drawImage(loading, w/2, h/2, 3);
     }
 
     public void keyPressed(int keyCode) {

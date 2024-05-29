@@ -7,10 +7,12 @@ public class ChatListScreen extends Screen{
 	private int lineHeight;
 	private int selected=0;
 	private Vector chats = new Vector();
+	private int hStr;
 
 	public ChatListScreen(MidletLifecycle lifecycle, OnClientListener listener, DrawScreen ds) {
 		super(lifecycle, listener, ds);
 		
+		this.hStr=MFont.getHeight()+2;
 		this.lineHeight=drawScreen.lineHeight;
 		this.chats=drawScreen.chats;
 	}
@@ -24,9 +26,12 @@ public class ChatListScreen extends Screen{
 		
 		MFont.setColor(255,255,255,255);
 		MFont.drawString(g,"WhatsApp", 5,2);
+		
 		MFont.drawString(g,"Статус: "+drawScreen.status, 5,16);
-		if (drawScreen.statusID==200) MFont.drawString(g,drawScreen.userCount, w-5-MFont.textWidth(drawScreen.userCount),16);
-		MFont.drawString(g,"Выход", 5,h-14);//+4 moto
+		if (drawScreen.statusID==200) 
+			MFont.drawString(g,drawScreen.userCount, w-5-MFont.textWidth(drawScreen.userCount),16);
+		
+		MFont.drawString(g,"Выход", 5,h-14);
 		if (drawScreen.statusID==200) MFont.drawString(g,"Выбор", w-5-MFont.textWidth("Выбор"), h-14);
 		else if (drawScreen.statusID!=1)MFont.drawString(g,"Подкл.", w-5-MFont.textWidth("Подкл."), h-14);
 
@@ -56,12 +61,10 @@ public class ChatListScreen extends Screen{
 			if (drawScreen.smallScreen) {MFont.drawString(g, c.getName(), 5,startLine+2);}
 			else {
 				MFont.drawString(g, c.getName(), lineHeight,startLine+2);
-				if (!drawScreen.smallScreen) 
-				{
-					String lastMessage=c.getLastMessage();
-					if (lastMessage.length()>50) lastMessage=lastMessage.substring(0,45);
-					MFont.drawString(g, lastMessage, lineHeight,startLine+2+drawScreen.hStr);
-				}
+				String lastMessage=c.getLastMessage();
+				if (lastMessage.length()>50) 
+					lastMessage=lastMessage.substring(0,45);
+				MFont.drawString(g, lastMessage, lineHeight,startLine+2+hStr);				
 			}
 		}
 		g.setColor(color);

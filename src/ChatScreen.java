@@ -57,7 +57,7 @@ public class ChatScreen extends Screen{
 		MFont.drawString(g,"Статус: "+drawScreen.status, 5,16);
 		if (drawScreen.statusID==200) MFont.drawString(g,drawScreen.userCount, w-5-MFont.textWidth(drawScreen.userCount),16);
 		MFont.drawString(g,"Назад", 5,h-14);
-		if (drawScreen.statusID==200) MFont.drawString(g,"Отправ.", w-5-MFont.textWidth(drawScreen.commandText), h-14);
+		if (drawScreen.statusID==200) MFont.drawString(g,"Отправ.", w-5-MFont.textWidth("Отправ."), h-14);
 		//MFont.drawString(g,drawScreen.commandText, w-5-MFont.textWidth(drawScreen.commandText), h-14);
 
         g.setColor(color);
@@ -75,7 +75,7 @@ public class ChatScreen extends Screen{
 		super.clearScreen(g);
 		g.drawImage(splash, w/2, h/2, 3);
 		
-		if (isFirstRun) {MLT.SetTextPar(5,33, w-10,h-47,5,g,"(Пусто)"); isFirstRun=false;}
+		if (isFirstRun) {MLT.SetTextPar(5,33, w-10,h-47,5,g,"(Пусто)"); isFirstRun=false;loadMessages();}
 		
 		MLT.DrawMultStr();//Выводим текст на экран.
 

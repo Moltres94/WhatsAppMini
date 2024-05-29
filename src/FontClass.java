@@ -37,30 +37,33 @@ public class FontClass {
 
 
 //*******************   Выводит на экран один символ   *************************
-public int drawChar(Graphics g, char c, int left, int top) {
-	int result=0;
-	if (fontImage != null) {
-		String s=String.valueOf(c);
-/*  unicode to ansi  */
-		int ch = s.charAt(0) ;
-		ch = ch == 0x400 ? 0xa7 : ch == 0x450 ? 0xb7 : ch;
-		ch = ch > 0x400 ? ch - 0x350 : ch;
-		int ind = ((int)(ch)-0x20)*3;//смещение данных в таблице xxxxx.dat
-		int len=0;//смещение в таблице xxxxx.png
-		int hlen = (buff[ind+1] & 0x00ff)<<8;//старший байт
-		len=(buff[ind] & 0x00ff)+hlen;  //смещение в таблице xxxxx.png
-		int width_char= buff[ind+2]+italic;//ширина символа
-		fontImage.getRGB(buf, 0, width_char, len-2, 0,width_char, h_char);//считать в буфер
-		
-		for(int i=0;i<buf.length;i++)
-		{
-			int color = (buf[i] &0x00ffffff);//читаем только RGB
-			if (color == 0) color =  Color;//если черный красим в цвет
-			buf[i] = color;
-		}
-		
-		g.drawRGB(buf, 0, width_char, left, top, width_char, h_char, true);
-		if (c==' '){width_char=h_char>>2;}//если пробел
+	public int drawChar(Graphics g, char c, int left, int top) {
+		int result=0;
+		if (fontImage != null) {
+			String s=String.valueOf(c);
+			/*  unicode to ansi  */
+			int ch = s.charAt(0) ;
+			ch = ch == 0x400 ? 0xa7 : ch == 0x450 ? 0xb7 : ch;
+			ch = ch > 0x400 ? ch - 0x350 : ch;
+			int ind = ((int)(ch)-0x20)*3;//смещение данных в таблице xxxxx.dat
+			int len=0;//смещение в таблице xxxxx.png
+			int hlen = (buff[ind+1] & 0x00ff)<<8;//старший байт
+			len=(buff[ind] & 0x00ff)+hlen;  //смещение в таблице xxxxx.png
+			int width_char= buff[ind+2]+italic;//ширина символа
+			if (width_char>0)
+				fontImage.getRGB(buf, 0, width_char, len-2, 0,width_char, h_char);//считать в буфер
+			
+			for(int i=0;i<buf.length;i++)
+			{
+				int color = (buf[i] &0x00ffffff);//читаем только RGB
+				if (color == 0) color =  Color;//если черный красим в цвет
+				buf[i] = color;
+			}
+
+			if (width_char>0)
+				g.drawRGB(buf, 0, width_char, left, top, width_char, h_char, true);
+			if (c==' '){width_char=h_char>>2;}//если пробел
+			
 			result=width_char;
 		}
 		return result;

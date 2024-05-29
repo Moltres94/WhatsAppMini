@@ -55,16 +55,24 @@ public class Client implements Runnable {
 			int sizeInt;
             do{
                 
+
 				byte[] size = new byte[2]; size[0]=0;size[1]=0;
 				
 				actual = is.read(size,0,2);if (actual==0) break;
 				sizeInt=(int)(((size[1] & 0xFF) << 8) + ((size[0] & 0xFF) << 0));
 				System.out.println("Длина сообщения "+sizeInt);
+				
+				long startTime = System.currentTimeMillis();
 				byte[] readData = new byte[sizeInt]; 
 				actual = is.read(readData,0,sizeInt);
 
+				long endTime = System.currentTimeMillis();
+				long elapsedTime = endTime - startTime;
+
 				response = new String(readData,0,actual,"UTF-8");
-                listener.onMessage(response);
+                listener.onMessage(response+" "+elapsedTime+" ms");
+				
+				
 			} while (actual!=0);
             stop();
             listener.onStatus(101);
