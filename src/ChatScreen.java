@@ -84,7 +84,7 @@ public class ChatScreen extends Screen{
     }
 
     public void onKeyPressed(int keyCode) {
-        if (drawScreen.statusID<200) drawScreen.addMessage("KeyCode: "+keyCode,2);
+		super.onKeyPressed(keyCode);
 		if (keyCode==KEY_SOFT1) drawScreen.goToChatList();
 		if (keyCode==KEY_SOFT2) 
 		{
@@ -93,6 +93,9 @@ public class ChatScreen extends Screen{
 
 		if (keyCode==KEY_UP) MLT.MoveUp();
 		else if (keyCode==KEY_DOWN) MLT.MoveDown();//Ч Ч - Ц
-		if (keyCode==35) listener.sendMessage("—ледует отметить, что синтетическое тестирование влечет за собой процесс внедрени€ и модернизации экспериментов, поражающих по своей масштабности и грандиозности. ¬от вам €ркий пример современных тенденций современна€ методологи€ разработки вы€вл€ет срочную потребность системы обучени€ кадров, соответствующей насущным потребност€м.");
+		if (keyCode==35) listener.sendMessage("Whatsapp{\"version\":1}");
+		if (keyCode==42) listener.sendMessage("Logon|24749");
+		
+		//if (keyCode==35) listener.sendMessage("—ледует отметить, что синтетическое тестирование влечет за собой процесс внедрени€ и модернизации экспериментов, поражающих по своей масштабности и грандиозности. ¬от вам €ркий пример современных тенденций современна€ методологи€ разработки вы€вл€ет срочную потребность системы обучени€ кадров, соответствующей насущным потребност€м.");
     }
 }

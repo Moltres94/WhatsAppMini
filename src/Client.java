@@ -9,12 +9,12 @@ public class Client implements Runnable {
     private final MidletLifecycle lifecycle;
     private final OnClientListener listener;
 	private String outMessageString;
-    private boolean stop;
+    private boolean stop;//false
     private InputStream is;
     private OutputStream os;
     private SocketConnection sc;
 	private String response;
-	private final static byte[] RN = "\n".getBytes();
+	//private final static byte[] RN = "\n".getBytes();
 
     public Client(MidletLifecycle lifecycle, OnClientListener listener) {
         this.lifecycle = lifecycle;
@@ -46,19 +46,21 @@ public class Client implements Runnable {
 			sc = (SocketConnection) Connector.open("socket://77.34.226.23:27030");
 			sc.setSocketOption((byte) 2, 1);
 
-            listener.onStatus(200);
+            listener.onStatus(201);
             is = sc.openInputStream();
             os = sc.openOutputStream();        
 			stop=false;
+			lifecycle.authorization();
             // Loop forever, receiving data
 			int actual;
+			int oldStatus;
 			int sizeInt;
             do{
-                
-
 				byte[] size = new byte[2]; size[0]=0;size[1]=0;
 				
 				actual = is.read(size,0,2);if (actual==0) break;
+				oldStatus=listener.getStatus();
+				listener.onStatus(202);
 				sizeInt=(int)(((size[1] & 0xFF) << 8) + ((size[0] & 0xFF) << 0));
 				System.out.println("Длина сообщения "+sizeInt);
 				
@@ -70,12 +72,14 @@ public class Client implements Runnable {
 				long elapsedTime = endTime - startTime;
 
 				response = new String(readData,0,actual,"UTF-8");
-                listener.onMessage(response+" "+elapsedTime+" ms");
+				listener.onStatus(oldStatus);
+                listener.onMessage(response);
 				
-				
+							
 			} while (actual!=0);
             stop();
-            listener.onStatus(101);
+			if (listener.getStatus()!=105)
+				listener.onStatus(101);
         } catch (ConnectionNotFoundException cnfe) {
             listener.onStatus(102);
         } catch (IOException ioe) {
@@ -88,7 +92,6 @@ public class Client implements Runnable {
             e.printStackTrace();
         }
     }
-
 
     //note: do we need this function?
     //outMessageString seems undefined

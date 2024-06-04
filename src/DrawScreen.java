@@ -6,12 +6,14 @@ import java.util.Vector;
 public class DrawScreen extends Canvas{
     public static int w,h;
 	private int fps=0;
+	
     public static Image splash = null;
 	public static Image avatar = null;
 	public static Image loading = null;
 	public static int statusID;
 	public static String status="";
 	public static String userCount="";
+	public static String id="";
 	public static String commandText;
 	public static FontClass MFont;
 	public static boolean isFirstRun=true;
@@ -19,18 +21,18 @@ public class DrawScreen extends Canvas{
 	public static int lineHeight;
 
 	private Vector screens = new Vector();
-	//public static int ACTIVE_SCREEN;
-	public static ChatListScreen chatListScreen;
-    public static ChatScreen chatScreen;
-	public static Screen currentScreen;
+	private static ChatListScreen chatListScreen;
+    private static ChatScreen chatScreen;
+	private static Screen currentScreen;
 	
-	public static  MidletLifecycle lifecycle;
-	public static OnClientListener listener;
+	private static MidletLifecycle lifecycle;
+	private static OnClientListener listener;
 	
-	public static Vector chats = new Vector();
+	private static Vector chats = new Vector();
 	
-	private boolean loadb=false;
+	//private boolean loadb=false;
 	private boolean loadComplete=false;
+	private String errorMessage="";
 
 	public DrawScreen(MidletLifecycle lifecycle, OnClientListener listener) {
 		setFullScreenMode(true);
@@ -52,29 +54,27 @@ public class DrawScreen extends Canvas{
 			e.printStackTrace();
 		}
 		
-		//ACTIVE_SCREEN =0;
         chatScreen=new ChatScreen(lifecycle, listener, this);
 		chatListScreen=new ChatListScreen(lifecycle, listener, this);
-		//screens.addElement(chatListScreen);
-		//screens.addElement(chatScreen);    
-		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
 		goToChatList();
 		
 		loadComplete=true;
 	}
 	
 	public void goToChatList(){
-		//ACTIVE_SCREEN =0;
-		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
 		currentScreen=chatListScreen;
 	}
 	public void goToChat(int selected){
-		//ACTIVE_SCREEN =1;
-		//currentScreen=(Screen)screens.elementAt(ACTIVE_SCREEN);
 		currentScreen=chatScreen;
 		chatScreen.setChat((Chat)chats.elementAt(selected));
 		//chatScreen.loadMessages();
 		//chatListScreen.setLoading(false);
+	}
+	public Chat getChat(int x){
+		return (Chat)chats.elementAt(x);
+	}
+	public int getChatsSize(){
+		return chats.size();
 	}
 
 	/**
@@ -93,6 +93,8 @@ public class DrawScreen extends Canvas{
 			} 
 			else {type=2; message="parse error";} 
 		}
+		else if (message.indexOf("Welcome|")==0) {setStatus(200);this.id=message.substring(message.length()-5);return; }
+		else if (message.indexOf("Error|")==0) {errorMessage=message.substring(6);setStatus(105);return; }
 		else if (message.indexOf("SYS|UCOUNT|")==0) {message=message.substring(11);userCount=message;repaint();return; }
 		else if (message.indexOf("INF|")==0) {message=message.substring(4);type=3;}
 		
@@ -122,17 +124,20 @@ public class DrawScreen extends Canvas{
 		else if (statusID==102) status="Сервер недоступен";
 		else if (statusID==103) status="103 something went wrong";
 		else if (statusID==104) status="104 something went wrong";
+		else if (statusID==105) status="105 "+errorMessage;
 		else if (statusID==200) {status="Онлайн";commandText="Отправить";}
+		else if (statusID==201) {status="Авторизация";commandText="Отправить";}
+		else if (statusID==202) {status="Загрузка...";commandText="Отправить";}
 		if ((statusID>100)&(statusID<200)) commandText="Подкл.";
 		repaint();
 	}
-	public void setLoading(boolean l){
-		this.loadb=l;
-		repaint();
-	}
-	public boolean getLoading(){
-		return loadb;
-	}
+	//public void setLoading(boolean l){
+	//	this.loadb=l;
+	//	repaint();
+	//}
+	//public boolean getLoading(){
+	//	return loadb;
+	//}
 	private  void clearScreen(Graphics g){
         int color=g.getColor();
         g.setColor(255, 255, 255);
@@ -144,6 +149,8 @@ public class DrawScreen extends Canvas{
 		if (isFirstRun){
 			clearScreen(g);
 			w = getWidth();h = getHeight();
+			chatScreen.setScreenSize(w,h);
+			chatListScreen.setScreenSize(w,h);
 			isFirstRun=false;	
 		}
 		

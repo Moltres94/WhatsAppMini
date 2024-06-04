@@ -8,15 +8,19 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	
     private Display disp;
 	private boolean isPaused;
-	private Client client;
-	private DrawScreen mainScreen;
+	private static Client client;
+	private static DrawScreen mainScreen;
 	private TextBox textBox;
-	private final static Command CMD_BACK = new Command("OK", Command.BACK, 1);
+	private final static Command CMD_SEND = new Command("OK", Command.OK, 1);
+	private final static Command CMD_SETID = new Command("OK", Command.OK, 1);
 
 	protected void startApp() {
+		System.out.println("startApp");
 		isPaused = false;
-		client = new Client(this, this);
-		mainScreen = new DrawScreen(this,this);
+		if (client==null)
+			client = new Client(this, this);
+		if (mainScreen==null)
+			mainScreen = new DrawScreen(this,this);
 		disp = Display.getDisplay(this);
 		disp.setCurrent(mainScreen);
 		
@@ -30,13 +34,18 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
     }
 
 
-	public void pauseApp() {
+	public void pauseApp(){
+		System.out.println("pauseApp");
         isPaused = true;
     }
 
 	public void quit(){
 		destroyApp(true);
 		notifyDestroyed();
+	}
+	public void authorization(){
+		if (mainScreen.id.equals("")) sendMessage("Whatsapp{\"version\":1}");
+		else sendMessage("Logon|"+mainScreen.id);
 	}
 	
 	protected void destroyApp(boolean force) {
@@ -45,6 +54,9 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 
 	public void onStatus(int status) {
 		mainScreen.setStatus(status);
+	}
+	public int getStatus() {
+		return mainScreen.statusID;
 	}
 
 	public void onMessage(String message) {
@@ -56,13 +68,13 @@ public class HelloWorldMidlet extends MIDlet implements MidletLifecycle, OnClien
 	}
 	public void showTextBox() {
 		textBox = new TextBox("Message", "", 70, TextField.ANY);
-		textBox.addCommand(CMD_BACK);
+		textBox.addCommand(CMD_SEND);
         textBox.setCommandListener(this);
 		disp.setCurrent(textBox);
 	}
 	
 	public void commandAction(Command c, Displayable d) {
-        if (c == CMD_BACK) {
+        if (c == CMD_SEND) {
 			client.sendMessage(textBox.getString());
             disp.setCurrent(mainScreen);
         }
